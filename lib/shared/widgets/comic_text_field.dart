@@ -64,7 +64,7 @@ class _ComicTextFieldState extends State<ComicTextField> {
           decoration: InputDecoration(
             hintText: widget.hint,
             hintStyle: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.35),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
             ),
             prefixIcon: widget.prefixIcon != null
                 ? Padding(
@@ -85,7 +85,7 @@ class _ComicTextFieldState extends State<ComicTextField> {
                           : Icons.visibility_outlined,
                       size: 20,
                       color:
-                          theme.colorScheme.onSurface.withOpacity(0.5),
+                          theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   )

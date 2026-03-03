@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/comic_button.dart';
 import '../../../../shared/widgets/comic_text_field.dart';
-import '../providers/auth_provider.dart';
+import '../providers/auth_notifier.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _formKey      = GlobalKey<FormState>();
+  final _emailCtrl    = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _passwordFocus = FocusNode();
 
@@ -29,55 +30,61 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthProvider>().signIn(
-            email: _emailCtrl.text.trim(),
-            password: _passwordCtrl.text,
-          );
-    }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    HapticFeedback.mediumImpact(); // feedback háptico al enviar
+    ref.read(authProvider.notifier).signIn(
+          email:    _emailCtrl.text.trim(),
+          password: _passwordCtrl.text,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+    final theme = Theme.of(context);
+    final authState = ref.watch(authProvider);
 
-    if (auth.status == AuthStatus.error && auth.errorMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _showError(context, auth.errorMessage!);
-        context.read<AuthProvider>().clearError();
-      });
-    }
+    // Mostrar error si hay uno
+    ref.listen<AsyncValue<dynamic>>(authProvider, (_, next) {
+      if (next case AsyncError(:final error)) {
+        HapticFeedback.vibrate();
+        final msg = ref.read(authProvider.notifier).parseError(error);
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(SnackBar(
+            content: Text(msg),
+            backgroundColor: theme.colorScheme.error,
+          ));
+      }
+    });
 
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppConstants.spacing24,
-          ),
+              horizontal: AppConstants.spacing24),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: AppConstants.spacing64),
-                _Header(),
+                const _LogoHeader(),
                 const SizedBox(height: AppConstants.spacing48),
-                _buildEmailField(),
+                _buildEmailField(theme),
                 const SizedBox(height: AppConstants.spacing16),
-                _buildPasswordField(),
+                _buildPasswordField(theme),
                 const SizedBox(height: AppConstants.spacing8),
-                _buildForgotLink(context),
+                _buildForgotLink(theme),
                 const SizedBox(height: AppConstants.spacing32),
                 ComicButton(
                   label: 'Iniciar sesión',
                   onPressed: _submit,
-                  isLoading: auth.isLoading,
+                  isLoading: authState.isLoading,
                   width: double.infinity,
                   animateDelay: 600,
                 ),
                 const SizedBox(height: AppConstants.spacing32),
-                _buildRegisterRow(context),
+                _buildRegisterRow(theme),
                 const SizedBox(height: AppConstants.spacing32),
               ],
             ),
@@ -87,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(ThemeData theme) {
     return ComicTextField(
       label: 'Email',
       hint: 'tu@email.com',
@@ -98,14 +105,12 @@ class _LoginScreenState extends State<LoginScreen> {
       prefixIcon: FaIcon(
         FontAwesomeIcons.envelope,
         size: 16,
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
       ),
       validator: (v) {
         if (v == null || v.trim().isEmpty) return 'El email es requerido';
-        if (!RegExp(r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,4}$')
-            .hasMatch(v.trim())) {
-          return 'Ingresa un email válido';
-        }
+        final valid = RegExp(r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,4}$');
+        if (!valid.hasMatch(v.trim())) return 'Ingresa un email válido';
         return null;
       },
     )
@@ -114,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
         .slideX(begin: -0.08, end: 0);
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(ThemeData theme) {
     return ComicTextField(
       label: 'Contraseña',
       hint: '••••••••',
@@ -126,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
       prefixIcon: FaIcon(
         FontAwesomeIcons.lock,
         size: 16,
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
       ),
       validator: (v) {
         if (v == null || v.isEmpty) return 'La contraseña es requerida';
@@ -139,14 +144,11 @@ class _LoginScreenState extends State<LoginScreen> {
         .slideX(begin: -0.08, end: 0);
   }
 
-  Widget _buildForgotLink(BuildContext context) {
-    final theme = Theme.of(context);
+  Widget _buildForgotLink(ThemeData theme) {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {
-          // TODO: navigate to forgot password screen
-        },
+        onPressed: () {}, // TODO: ForgotPasswordScreen
         child: Text(
           '¿Olvidaste tu contraseña?',
           style: theme.textTheme.bodySmall?.copyWith(
@@ -155,26 +157,21 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: 500.ms, duration: 350.ms);
+    ).animate().fadeIn(delay: 500.ms, duration: 350.ms);
   }
 
-  Widget _buildRegisterRow(BuildContext context) {
-    final theme = Theme.of(context);
+  Widget _buildRegisterRow(ThemeData theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           '¿No tienes cuenta? ',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         GestureDetector(
-          onTap: () {
-            // TODO: navigate to register screen
-          },
+          onTap: () {}, // TODO: RegisterScreen
           child: Text(
             'Regístrate',
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -184,70 +181,60 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ],
-    )
-        .animate()
-        .fadeIn(delay: 700.ms, duration: 350.ms);
-  }
-
-  void _showError(BuildContext ctx, String message) {
-    ScaffoldMessenger.of(ctx).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(ctx).colorScheme.error,
-      ),
-    );
+    ).animate().fadeIn(delay: 700.ms, duration: 350.ms);
   }
 }
 
-// ─── Header separado para mantener el build limpio ───────────────────────────
-class _Header extends StatelessWidget {
+// ─── Header separado para evitar rebuilds innecesarios ────────────────────────
+class _LogoHeader extends StatelessWidget {
+  const _LogoHeader();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Column(
       children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary,
-            borderRadius:
-                BorderRadius.circular(AppConstants.borderRadiusLarge),
-            border: Border.all(
-              color: theme.colorScheme.outline,
-              width: AppConstants.borderWidth,
+        RepaintBoundary(
+          child: Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary,
+              borderRadius:
+                  BorderRadius.circular(AppConstants.borderRadiusLarge),
+              border: Border.all(
+                color: theme.colorScheme.outline,
+                width: AppConstants.borderWidth,
+              ),
             ),
-          ),
-          child: Center(
-            child: FaIcon(
-              FontAwesomeIcons.locationDot,
-              color: theme.colorScheme.onPrimary,
-              size: 36,
+            child: Center(
+              child: FaIcon(
+                FontAwesomeIcons.locationDot,
+                color: theme.colorScheme.onPrimary,
+                size: 36,
+              ),
             ),
-          ),
-        )
-            .animate()
-            .fadeIn(duration: 400.ms)
-            .scale(begin: const Offset(0.75, 0.75)),
+          )
+              .animate()
+              .fadeIn(duration: 400.ms)
+              .scale(begin: const Offset(0.75, 0.75)),
+        ),
         const SizedBox(height: AppConstants.spacing16),
         Text(
           AppConstants.appName.toUpperCase(),
           style: theme.textTheme.headlineLarge,
-          textAlign: TextAlign.center,
         )
             .animate()
             .fadeIn(delay: 100.ms, duration: 400.ms)
             .slideY(begin: -0.15, end: 0),
         const SizedBox(height: AppConstants.spacing8),
         Text(
-          'Inicia sesión para continuar',
+          'Préstamos entre amigos — simple y seguro',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.55),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
           ),
           textAlign: TextAlign.center,
-        )
-            .animate()
-            .fadeIn(delay: 200.ms, duration: 400.ms),
+        ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
       ],
     );
   }
