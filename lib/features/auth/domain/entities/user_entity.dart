@@ -1,8 +1,9 @@
 class UserEntity {
-  final String id;
-  final String email;
+  final String  id;
+  final String  email;
   final String? displayName;
   final String? avatarUrl;
+  final String? phoneNumber;
   final DateTime createdAt;
 
   const UserEntity({
@@ -10,15 +11,21 @@ class UserEntity {
     required this.email,
     this.displayName,
     this.avatarUrl,
+    this.phoneNumber,
     required this.createdAt,
   });
 
   String get initials {
     if (displayName != null && displayName!.isNotEmpty) {
       final parts = displayName!.trim().split(' ');
-      if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+      if (parts.length >= 2) {
+        return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+      }
       return parts[0][0].toUpperCase();
     }
     return email[0].toUpperCase();
   }
+
+  bool get hasPhone =>
+      phoneNumber != null && phoneNumber!.isNotEmpty;
 }

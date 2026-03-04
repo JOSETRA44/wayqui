@@ -3,10 +3,12 @@ import '../../../../core/providers/supabase_providers.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../domain/usecases/reset_password_usecase.dart';
 import '../../domain/usecases/sign_in_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
+import '../../domain/usecases/sign_up_usecase.dart';
 
-// ─── Dependency graph (manual DI, sin get_it para simplicidad) ───────────────
+// ─── Dependency graph ─────────────────────────────────────────────────────────
 
 final _authDataSourceProvider = Provider(
   (ref) => AuthRemoteDataSourceImpl(ref.watch(supabaseClientProvider)),
@@ -20,62 +22,100 @@ final _authRepositoryProvider = Provider(
 
 final _signInUseCaseProvider = Provider(
   (ref) => SignInUseCase(ref.watch(_authRepositoryProvider)),
-  name: 'signInUseCase',
 );
-
+final _signUpUseCaseProvider = Provider(
+  (ref) => SignUpUseCase(ref.watch(_authRepositoryProvider)),
+);
 final _signOutUseCaseProvider = Provider(
   (ref) => SignOutUseCase(ref.watch(_authRepositoryProvider)),
-  name: 'signOutUseCase',
+);
+final _resetPasswordUseCaseProvider = Provider(
+  (ref) => ResetPasswordUseCase(ref.watch(_authRepositoryProvider)),
 );
 
 // ─── Auth State ───────────────────────────────────────────────────────────────
 
-/// Estado global de autenticación.
 /// AsyncValue<UserEntity?>:
-///   AsyncLoading → cargando
-///   AsyncData(user) → autenticado
-///   AsyncData(null) → no autenticado
-///   AsyncError → error
+///   AsyncLoading      → operación en curso
+///   AsyncData(user)   → autenticado
+///   AsyncData(null)   → no autenticado / registro pendiente de confirmación
+///   AsyncError(e)     → error
 final authProvider =
     AsyncNotifierProvider<AuthNotifier, UserEntity?>(AuthNotifier.new);
 
 class AuthNotifier extends AsyncNotifier<UserEntity?> {
-  late SignInUseCase _signIn;
-  late SignOutUseCase _signOut;
-
   @override
   Future<UserEntity?> build() async {
-    _signIn = ref.watch(_signInUseCaseProvider);
-    _signOut = ref.watch(_signOutUseCaseProvider);
-
-    // Leer usuario actual desde la sesión activa de Supabase
-    final repo = ref.watch(_authRepositoryProvider);
-    return repo.currentUser;
+    return ref.watch(_authRepositoryProvider).currentUser;
   }
 
+  // ── Sign In ───────────────────────────────────────────────────
   Future<void> signIn({required String email, required String password}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => _signIn(SignInParams(email: email, password: password)),
+      () => ref
+          .read(_signInUseCaseProvider)
+          .call(SignInParams(email: email, password: password)),
     );
   }
 
+  // ── Sign Up ───────────────────────────────────────────────────
+  /// Retorna true si se requiere confirmación de email.
+  Future<bool> signUp({
+    required String email,
+    required String password,
+    required String fullName,
+    String? phoneNumber,
+  }) async {
+    state = const AsyncLoading();
+    bool confirmationRequired = false;
+    state = await AsyncValue.guard(() async {
+      final result = await ref.read(_signUpUseCaseProvider).call(
+            SignUpParams(
+              email:       email,
+              password:    password,
+              fullName:    fullName,
+              phoneNumber: phoneNumber,
+            ),
+          );
+      confirmationRequired = result.emailConfirmationRequired;
+      return result.user; // null si requiere confirmación
+    });
+    return confirmationRequired;
+  }
+
+  // ── Reset Password ────────────────────────────────────────────
+  Future<void> resetPassword(String email) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(_resetPasswordUseCaseProvider).call(email);
+      return ref.read(_authRepositoryProvider).currentUser; // mantiene null
+    });
+  }
+
+  // ── Sign Out ──────────────────────────────────────────────────
   Future<void> signOut() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _signOut();
+      await ref.read(_signOutUseCaseProvider).call();
       return null;
     });
   }
 
-  /// Parseo de errores Supabase → mensajes en español para el usuario
+  // ── Error parser ──────────────────────────────────────────────
   String parseError(Object error) {
     final msg = error.toString().toLowerCase();
     if (msg.contains('invalid') || msg.contains('credentials')) {
       return 'Email o contraseña incorrectos';
     }
+    if (msg.contains('already registered') || msg.contains('already been registered')) {
+      return 'Este email ya tiene una cuenta registrada';
+    }
     if (msg.contains('email not confirmed')) {
       return 'Confirma tu email antes de ingresar';
+    }
+    if (msg.contains('weak password') || msg.contains('should be at least')) {
+      return 'La contraseña es muy débil';
     }
     if (msg.contains('too many') || msg.contains('rate limit')) {
       return 'Demasiados intentos. Espera un momento';
@@ -83,6 +123,6 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
     if (msg.contains('network') || msg.contains('socket')) {
       return 'Sin conexión. Verifica tu internet';
     }
-    return 'Error al iniciar sesión. Intenta de nuevo';
+    return 'Algo salió mal. Intenta de nuevo';
   }
 }

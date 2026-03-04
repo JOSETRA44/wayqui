@@ -1,15 +1,19 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/loan_entity.dart';
 import '../../domain/entities/loan_transaction_entity.dart';
+import '../../domain/entities/user_search_result.dart';
 
 abstract class LoansRemoteDataSource {
   Future<List<LoanEntity>> getLoansAsCreditor(String userId);
   Future<List<LoanEntity>> getLoansAsDebtor(String userId);
-  Future<LoanEntity> createLoan(Map<String, dynamic> data);
+  Future<LoanEntity>       getLoanById(String loanId);
+  Future<LoanEntity>       createLoan(Map<String, dynamic> data);
   Future<List<LoanTransactionEntity>> getTransactions(String loanId);
-  Future<LoanTransactionEntity> registerPayment(Map<String, dynamic> data);
-  Future<void> confirmTransaction(String transactionId);
-  Future<Map<String, dynamic>> getUserSummary();
+  Future<LoanTransactionEntity>       registerPayment(Map<String, dynamic> data);
+  Future<UserSearchResult>            searchUserByPhone(String phone);
+  Future<void>                        confirmTransaction(String transactionId);
+  Future<Map<String, dynamic>>        getUserSummary();
+  Future<Map<String, dynamic>>        getLoanWithTransactions(String loanId);
 }
 
 class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
@@ -22,8 +26,9 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
         .from('loans')
         .select()
         .eq('creditor_id', userId)
+        .inFilter('status', ['active', 'partially_paid', 'paid'])
         .order('created_at', ascending: false);
-    return rows.map((r) => LoanEntity.fromJson(r)).toList();
+    return rows.map(LoanEntity.fromJson).toList();
   }
 
   @override
@@ -32,13 +37,28 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
         .from('loans')
         .select()
         .eq('debtor_id', userId)
+        .inFilter('status', ['active', 'partially_paid', 'paid'])
         .order('created_at', ascending: false);
-    return rows.map((r) => LoanEntity.fromJson(r)).toList();
+    return rows.map(LoanEntity.fromJson).toList();
+  }
+
+  @override
+  Future<LoanEntity> getLoanById(String loanId) async {
+    final row = await _client
+        .from('loans')
+        .select()
+        .eq('id', loanId)
+        .single();
+    return LoanEntity.fromJson(row);
   }
 
   @override
   Future<LoanEntity> createLoan(Map<String, dynamic> data) async {
-    final row = await _client.from('loans').insert(data).select().single();
+    final row = await _client
+        .from('loans')
+        .insert(data)
+        .select()
+        .single();
     return LoanEntity.fromJson(row);
   }
 
@@ -49,7 +69,7 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
         .select()
         .eq('loan_id', loanId)
         .order('created_at', ascending: false);
-    return rows.map((r) => LoanTransactionEntity.fromJson(r)).toList();
+    return rows.map(LoanTransactionEntity.fromJson).toList();
   }
 
   @override
@@ -64,15 +84,27 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
   }
 
   @override
-  Future<void> confirmTransaction(String transactionId) async {
-    // Usar RPC para que el trigger maneje la lógica atómica en el servidor
-    await _client.rpc('confirm_transaction',
-        params: {'p_transaction_id': transactionId});
+  Future<UserSearchResult> searchUserByPhone(String phone) async {
+    final result = await _client
+        .rpc('search_user_by_phone', params: {'p_phone': phone});
+    return UserSearchResult.fromJson(Map<String, dynamic>.from(result as Map));
   }
 
   @override
+  Future<void> confirmTransaction(String transactionId) =>
+      _client.rpc('confirm_transaction',
+          params: {'p_transaction_id': transactionId});
+
+  @override
   Future<Map<String, dynamic>> getUserSummary() async {
-    final result = await _client.rpc('get_user_summary');
-    return Map<String, dynamic>.from(result as Map);
+    final r = await _client.rpc('get_user_summary');
+    return Map<String, dynamic>.from(r as Map);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getLoanWithTransactions(String loanId) async {
+    final r = await _client.rpc('get_loan_with_transactions',
+        params: {'p_loan_id': loanId});
+    return Map<String, dynamic>.from(r as Map);
   }
 }

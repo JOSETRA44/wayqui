@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/supabase_providers.dart';
 import '../../data/datasources/loans_remote_datasource.dart';
 import '../../data/repositories/loans_repository_impl.dart';
 import '../../domain/entities/loan_entity.dart';
+import '../../domain/entities/user_search_result.dart';
 import '../../domain/usecases/create_loan_usecase.dart';
 import '../../domain/usecases/get_loans_usecase.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
@@ -14,30 +16,27 @@ final _loansDataSourceProvider = Provider(
   name: 'loansDataSource',
 );
 
-final _loansRepositoryProvider = Provider(
+final loansRepositoryProvider = Provider(
   (ref) => LoansRepositoryImpl(ref.watch(_loansDataSourceProvider)),
   name: 'loansRepository',
 );
 
-// ─── Use case providers ───────────────────────────────────────────────────────
-
 final _getLoansUseCaseProvider = Provider(
-  (ref) => GetLoansUseCase(ref.watch(_loansRepositoryProvider)),
+  (ref) => GetLoansUseCase(ref.watch(loansRepositoryProvider)),
 );
 
 final _createLoanUseCaseProvider = Provider(
-  (ref) => CreateLoanUseCase(ref.watch(_loansRepositoryProvider)),
+  (ref) => CreateLoanUseCase(ref.watch(loansRepositoryProvider)),
 );
 
-// ─── User summary (balance) ───────────────────────────────────────────────────
+// ─── User summary ─────────────────────────────────────────────────────────────
 
 final userSummaryProvider =
     FutureProvider.autoDispose<Map<String, dynamic>>((ref) {
-  final repo = ref.watch(_loansRepositoryProvider);
-  return repo.getUserSummary();
+  return ref.watch(loansRepositoryProvider).getUserSummary();
 });
 
-// ─── Loans list (creditor + debtor) ──────────────────────────────────────────
+// ─── Loans list ───────────────────────────────────────────────────────────────
 
 typedef LoansSnapshot = ({
   List<LoanEntity> asCreditor,
@@ -56,33 +55,72 @@ class LoansNotifier extends AutoDisposeAsyncNotifier<LoansSnapshot> {
     if (user == null) {
       return (asCreditor: <LoanEntity>[], asDebtor: <LoanEntity>[]);
     }
-
-    final useCase = ref.watch(_getLoansUseCaseProvider);
-    return useCase(user.id);
+    return ref.read(_getLoansUseCaseProvider)(user.id);
   }
 
   Future<void> createLoan(CreateLoanParams params) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final useCase = ref.read(_createLoanUseCaseProvider);
-      await useCase(params);
-      return ref.read(_getLoansUseCaseProvider)(
-          ref.read(authProvider).value!.id);
+      await ref.read(_createLoanUseCaseProvider)(params);
+      final uid = ref.read(authProvider).value!.id;
+      return ref.read(_getLoansUseCaseProvider)(uid);
     });
   }
 
   Future<void> refresh() async {
-    final user = ref.read(authProvider).value;
-    if (user == null) return;
+    final uid = ref.read(authProvider).value?.id;
+    if (uid == null) return;
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(_getLoansUseCaseProvider)(user.id),
-    );
+        () => ref.read(_getLoansUseCaseProvider)(uid));
   }
 
   Future<void> confirmTransaction(String transactionId) async {
-    final repo = ref.read(_loansRepositoryProvider);
-    await repo.confirmTransaction(transactionId);
-    ref.invalidateSelf(); // Recargar lista tras confirmar
+    await ref.read(loansRepositoryProvider).confirmTransaction(transactionId);
+    ref.invalidateSelf();
+  }
+}
+
+// ─── Loan detail (by ID) ─────────────────────────────────────────────────────
+
+final loanDetailProvider =
+    FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+  (ref, loanId) => ref
+      .watch(loansRepositoryProvider)
+      .getLoanWithTransactions(loanId),
+);
+
+// ─── Phone search (debounced) ─────────────────────────────────────────────────
+
+final phoneSearchProvider = AsyncNotifierProvider.autoDispose<
+    PhoneSearchNotifier, UserSearchResult?>(PhoneSearchNotifier.new);
+
+class PhoneSearchNotifier
+    extends AutoDisposeAsyncNotifier<UserSearchResult?> {
+  Timer? _debounce;
+
+  @override
+  Future<UserSearchResult?> build() async {
+    ref.onDispose(() => _debounce?.cancel());
+    return null;
+  }
+
+  /// Búsqueda con debounce de 500ms para no saturar el servidor.
+  void search(String phone) {
+    _debounce?.cancel();
+    if (phone.replaceAll(RegExp(r'\s'), '').length < 9) {
+      state = const AsyncData(null);
+      return;
+    }
+    state = const AsyncLoading();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      state = await AsyncValue.guard(() =>
+          ref.read(loansRepositoryProvider).searchUserByPhone(phone));
+    });
+  }
+
+  void clear() {
+    _debounce?.cancel();
+    state = const AsyncData(null);
   }
 }

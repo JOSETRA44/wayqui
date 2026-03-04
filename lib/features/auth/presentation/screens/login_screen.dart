@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../shared/widgets/comic_button.dart';
 import '../../../../shared/widgets/comic_text_field.dart';
 import '../providers/auth_notifier.dart';
@@ -148,7 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {}, // TODO: ForgotPasswordScreen
+        onPressed: () => context.push(AppRoutes.forgotPassword),
         child: Text(
           '¿Olvidaste tu contraseña?',
           style: theme.textTheme.bodySmall?.copyWith(
@@ -171,7 +173,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
         GestureDetector(
-          onTap: () {}, // TODO: RegisterScreen
+          onTap: () => context.push(AppRoutes.register),
           child: Text(
             'Regístrate',
             style: theme.textTheme.bodyMedium?.copyWith(

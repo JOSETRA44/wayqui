@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_constants.dart';
 
 class ComicTextField extends StatefulWidget {
@@ -11,8 +12,13 @@ class ComicTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
+  final ValueChanged<String>? onChanged;
   final FocusNode? focusNode;
   final bool autofocus;
+  final int? maxLines;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextCapitalization textCapitalization;
 
   const ComicTextField({
     super.key,
@@ -25,8 +31,13 @@ class ComicTextField extends StatefulWidget {
     this.prefixIcon,
     this.textInputAction,
     this.onFieldSubmitted,
+    this.onChanged,
     this.focusNode,
     this.autofocus = false,
+    this.maxLines = 1,
+    this.maxLength,
+    this.inputFormatters,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -58,8 +69,13 @@ class _ComicTextFieldState extends State<ComicTextField> {
           validator: widget.validator,
           textInputAction: widget.textInputAction,
           onFieldSubmitted: widget.onFieldSubmitted,
+          onChanged: widget.onChanged,
           focusNode: widget.focusNode,
           autofocus: widget.autofocus,
+          maxLines: widget.isPassword ? 1 : widget.maxLines,
+          maxLength: widget.maxLength,
+          inputFormatters: widget.inputFormatters,
+          textCapitalization: widget.textCapitalization,
           style: theme.textTheme.bodyLarge,
           decoration: InputDecoration(
             hintText: widget.hint,
