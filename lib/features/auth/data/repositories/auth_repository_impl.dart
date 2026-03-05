@@ -35,5 +35,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> resetPassword(String email) => _ds.resetPassword(email);
 
   @override
+  Future<UserEntity> verifyOtp({required String email, required String token}) =>
+      _ds.verifyOtp(email: email, token: token);
+
+  @override
+  Future<void> resendOtp(String email) => _ds.resendOtp(email);
+
+  @override
   Future<void> signOut() => _ds.signOut();
 }

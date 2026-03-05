@@ -6,7 +6,7 @@ import '../extensions/wayqui_colors.dart';
 
 /// Sistema de temas de Wayqui.
 /// Acceder a colores semánticos:
-///   Theme.of(context).extension<WayquiColors>()!.positive
+/// `Theme.of(context).extension<WayquiColors>()!.positive`
 class AppTheme {
   AppTheme._();
 

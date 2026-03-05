@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// ThemeExtension de colores semánticos de Wayqui.
-/// Uso: Theme.of(context).extension<WayquiColors>()!.positive
+/// Uso: `Theme.of(context).extension<WayquiColors>()!.positive`
 @immutable
 class WayquiColors extends ThemeExtension<WayquiColors> {
   final Color positive;    // Saldo a favor (te deben)

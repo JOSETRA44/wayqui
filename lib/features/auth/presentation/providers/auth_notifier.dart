@@ -35,7 +35,7 @@ final _resetPasswordUseCaseProvider = Provider(
 
 // ─── Auth State ───────────────────────────────────────────────────────────────
 
-/// AsyncValue<UserEntity?>:
+/// `AsyncValue<UserEntity?>`:
 ///   AsyncLoading      → operación en curso
 ///   AsyncData(user)   → autenticado
 ///   AsyncData(null)   → no autenticado / registro pendiente de confirmación
@@ -84,6 +84,21 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
     return confirmationRequired;
   }
 
+  // ── OTP Verify ────────────────────────────────────────────────
+  /// Verifica el código OTP y actualiza el estado a autenticado.
+  Future<void> verifyOtp({
+    required String email,
+    required String token,
+  }) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() =>
+        ref.read(_authRepositoryProvider).verifyOtp(email: email, token: token));
+  }
+
+  /// Reenvía el OTP al email (máx 1 vez por minuto en Supabase).
+  Future<void> resendOtp(String email) =>
+      ref.read(_authRepositoryProvider).resendOtp(email);
+
   // ── Reset Password ────────────────────────────────────────────
   Future<void> resetPassword(String email) async {
     state = const AsyncLoading();
@@ -105,24 +120,31 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
   // ── Error parser ──────────────────────────────────────────────
   String parseError(Object error) {
     final msg = error.toString().toLowerCase();
+    // Supabase devuelve este error cuando el body llega sin email/password
+    if (msg.contains('anonymous') || msg.contains('anonymous_provider_disabled')) {
+      return 'Completa todos los campos del registro antes de continuar.';
+    }
     if (msg.contains('invalid') || msg.contains('credentials')) {
       return 'Email o contraseña incorrectos';
     }
     if (msg.contains('already registered') || msg.contains('already been registered')) {
-      return 'Este email ya tiene una cuenta registrada';
+      return 'Este email ya tiene una cuenta. Inicia sesión.';
     }
     if (msg.contains('email not confirmed')) {
       return 'Confirma tu email antes de ingresar';
     }
     if (msg.contains('weak password') || msg.contains('should be at least')) {
-      return 'La contraseña es muy débil';
+      return 'La contraseña es muy débil. Usa al menos 8 caracteres.';
     }
     if (msg.contains('too many') || msg.contains('rate limit')) {
       return 'Demasiados intentos. Espera un momento';
     }
-    if (msg.contains('network') || msg.contains('socket')) {
+    if (msg.contains('network') || msg.contains('socket') || msg.contains('connection')) {
       return 'Sin conexión. Verifica tu internet';
     }
-    return 'Algo salió mal. Intenta de nuevo';
+    if (msg.contains('user not found')) {
+      return 'No existe una cuenta con ese email';
+    }
+    return 'Algo salió mal. Intenta de nuevo ($error)';
   }
 }

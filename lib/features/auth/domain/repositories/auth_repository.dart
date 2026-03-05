@@ -19,5 +19,14 @@ abstract class AuthRepository {
 
   Future<void> resetPassword(String email);
 
+  /// Verifica el OTP de 6 dígitos enviado al email tras el registro.
+  Future<UserEntity> verifyOtp({
+    required String email,
+    required String token,
+  });
+
+  /// Reenvía el OTP al email indicado.
+  Future<void> resendOtp(String email);
+
   Future<void> signOut();
 }

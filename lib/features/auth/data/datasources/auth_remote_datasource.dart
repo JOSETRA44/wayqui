@@ -15,8 +15,10 @@ abstract class AuthRemoteDataSource {
     String? phoneNumber,
   });
 
-  Future<void> resetPassword(String email);
-  Future<void> signOut();
+  Future<void>       resetPassword(String email);
+  Future<UserEntity> verifyOtp({required String email, required String token});
+  Future<void>       resendOtp(String email);
+  Future<void>       signOut();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -75,6 +77,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> resetPassword(String email) =>
       _client.auth.resetPasswordForEmail(email);
+
+  @override
+  Future<UserEntity> verifyOtp({
+    required String email,
+    required String token,
+  }) async {
+    final res = await _client.auth.verifyOTP(
+      type:  OtpType.signup,
+      email: email,
+      token: token,
+    );
+    final user = res.user;
+    if (user == null) throw const AuthException('Código inválido o expirado');
+    return _toEntity(user);
+  }
+
+  @override
+  Future<void> resendOtp(String email) =>
+      _client.auth.resend(type: OtpType.signup, email: email);
 
   @override
   Future<void> signOut() => _client.auth.signOut();
