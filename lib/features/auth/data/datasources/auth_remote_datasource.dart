@@ -68,9 +68,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'phone_number': phoneNumber,
       },
     );
+
+    // session == null means Supabase sent a confirmation email and the user
+    // is NOT yet authenticated. In this case we return null for the user so
+    // authProvider stays at AsyncData(null) (unauthenticated) and the router
+    // does NOT redirect to /home before the OTP screen is pushed.
+    final emailConfirmationRequired = res.session == null;
     return SignUpResult(
-      user: res.user != null ? _toEntity(res.user!) : null,
-      emailConfirmationRequired: res.session == null,
+      user: emailConfirmationRequired ? null : _toEntity(res.user!),
+      emailConfirmationRequired: emailConfirmationRequired,
     );
   }
 

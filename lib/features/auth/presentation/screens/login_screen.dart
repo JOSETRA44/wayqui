@@ -49,13 +49,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen<AsyncValue<dynamic>>(authProvider, (_, next) {
       if (next case AsyncError(:final error)) {
         HapticFeedback.vibrate();
-        final msg = ref.read(authProvider.notifier).parseError(error);
-        ScaffoldMessenger.of(context)
-          ..clearSnackBars()
-          ..showSnackBar(SnackBar(
-            content: Text(msg),
-            backgroundColor: theme.colorScheme.error,
-          ));
+        final raw = error.toString().toLowerCase();
+        final isUnconfirmed = raw.contains('email not confirmed')
+            || raw.contains('email_not_confirmed');
+
+        if (isUnconfirmed) {
+          // El usuario existe pero no confirmó su email.
+          // Ofrecemos navegar directamente a la pantalla de OTP.
+          final email = _emailCtrl.text.trim();
+          ScaffoldMessenger.of(context)
+            ..clearSnackBars()
+            ..showSnackBar(SnackBar(
+              content: const Text('Confirma tu email antes de ingresar'),
+              backgroundColor: theme.colorScheme.error,
+              duration: const Duration(seconds: 8),
+              action: email.isNotEmpty
+                  ? SnackBarAction(
+                      label: 'Verificar email',
+                      textColor: theme.colorScheme.onError,
+                      onPressed: () => context.push(
+                        '${AppRoutes.otpVerify}?email=${Uri.encodeComponent(email)}',
+                      ),
+                    )
+                  : null,
+            ));
+        } else {
+          final msg = ref.read(authProvider.notifier).parseError(error);
+          ScaffoldMessenger.of(context)
+            ..clearSnackBars()
+            ..showSnackBar(SnackBar(
+              content: Text(msg),
+              backgroundColor: theme.colorScheme.error,
+            ));
+        }
       }
     });
 

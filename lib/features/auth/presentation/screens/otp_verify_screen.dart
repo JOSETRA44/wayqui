@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/extensions/wayqui_colors.dart';
@@ -23,21 +25,21 @@ class OtpVerifyScreen extends ConsumerStatefulWidget {
 }
 
 class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
-  static const int _otpLength = 6;
+  static const int _otpLength     = 6;
   static const int _resendSeconds = 60;
 
   final _controllers = List.generate(_otpLength, (_) => TextEditingController());
   final _focusNodes  = List.generate(_otpLength, (_) => FocusNode());
 
-  int  _secondsLeft = _resendSeconds;
+  int  _secondsLeft  = _resendSeconds;
   late Timer _timer;
-  bool _hasError = false;
+  bool _hasError     = false;
+  bool _isVerifying  = false;   // ← guard double-submit
 
   @override
   void initState() {
     super.initState();
     _startTimer();
-    // Focus primer campo después del frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNodes[0].requestFocus();
     });
@@ -65,15 +67,16 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
   String get _fullOtp => _controllers.map((c) => c.text).join();
 
   void _onDigitChanged(int index, String value) {
+    if (_isVerifying) return;
     setState(() => _hasError = false);
 
     if (value.length > 1) {
-      // Paste: distribuir dígitos
+      // Paste: distribute digits across boxes
       final digits = value.replaceAll(RegExp(r'\D'), '');
       for (int i = 0; i < _otpLength && i < digits.length; i++) {
         _controllers[i].text = digits[i];
       }
-      final nextIndex = (digits.length).clamp(0, _otpLength - 1);
+      final nextIndex = digits.length.clamp(0, _otpLength - 1);
       _focusNodes[nextIndex].requestFocus();
       if (_fullOtp.length == _otpLength) { _submit(); }
       return;
@@ -100,26 +103,31 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
 
   Future<void> _submit() async {
     final otp = _fullOtp;
-    if (otp.length < _otpLength) return;
+    if (otp.length < _otpLength || _isVerifying) return;
 
+    setState(() => _isVerifying = true);
     HapticFeedback.mediumImpact();
 
-    await ref.read(authProvider.notifier).verifyOtp(
-          email: widget.email,
-          token: otp,
-        );
+    try {
+      await ref.read(authProvider.notifier).verifyOtp(
+            email: widget.email,
+            token: otp,
+          );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    final state = ref.read(authProvider);
-    if (state.hasError) {
-      HapticFeedback.vibrate();
-      setState(() => _hasError = true);
-      for (final c in _controllers) { c.clear(); }
-      _focusNodes[0].requestFocus();
-      _showError('Código incorrecto o expirado. Intenta de nuevo.');
+      final authState = ref.read(authProvider);
+      if (authState.hasError) {
+        HapticFeedback.vibrate();
+        setState(() => _hasError = true);
+        for (final c in _controllers) { c.clear(); }
+        _focusNodes[0].requestFocus();
+        _showError('Código incorrecto o expirado. Intenta de nuevo.');
+      }
+      // Si es AsyncData(user) el router redirige automáticamente a /home
+    } finally {
+      if (mounted) setState(() => _isVerifying = false);
     }
-    // Si es AsyncData(user) el router redirige automáticamente a home
   }
 
   Future<void> _resend() async {
@@ -157,7 +165,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
     final theme     = Theme.of(context);
     final colors    = theme.extension<WayquiColors>()!;
     final authState = ref.watch(authProvider);
-    final isLoading = authState.isLoading;
+    final isLoading = authState.isLoading || _isVerifying;
 
     final emailDisplay = widget.email.length > 28
         ? '${widget.email.substring(0, 14)}…${widget.email.split('@').last}'
@@ -169,8 +177,8 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
         backgroundColor: Colors.transparent,
         elevation:       0,
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, size: 16),
-          onPressed: () => Navigator.maybePop(context),
+          icon:      const FaIcon(FontAwesomeIcons.arrowLeft, size: 16),
+          onPressed: isLoading ? null : () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -253,10 +261,10 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
                   child: ElevatedButton(
                     onPressed: _fullOtp.length == _otpLength ? _submit : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:        theme.colorScheme.primary,
-                      foregroundColor:        theme.colorScheme.onPrimary,
+                      backgroundColor:         theme.colorScheme.primary,
+                      foregroundColor:         theme.colorScheme.onPrimary,
                       disabledBackgroundColor: theme.colorScheme.outline.withValues(alpha: 0.2),
-                      elevation:              0,
+                      elevation:               0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
                         side: BorderSide(color: theme.colorScheme.outline, width: 2),
@@ -277,7 +285,7 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
               // ── Resend ───────────────────────────────────────────
               _ResendRow(
                 secondsLeft: _secondsLeft,
-                onResend:    _resend,
+                onResend:    isLoading ? () {} : _resend,
               ).animate().fadeIn(delay: 600.ms),
             ],
           ),
@@ -288,10 +296,10 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// OTP Box
+// OTP Box  —  StatefulWidget to manage KeyboardListener's FocusNode lifecycle
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _OtpBox extends StatelessWidget {
+class _OtpBox extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode             focusNode;
   final bool                  hasError;
@@ -311,56 +319,75 @@ class _OtpBox extends StatelessWidget {
   });
 
   @override
+  State<_OtpBox> createState() => _OtpBoxState();
+}
+
+class _OtpBoxState extends State<_OtpBox> {
+  final _keyListenerFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _keyListenerFocus.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: KeyboardListener(
-        focusNode: FocusNode(),
-        onKeyEvent: onKey,
+        focusNode: _keyListenerFocus,
+        onKeyEvent: widget.onKey,
         child: SizedBox(
           width:  46,
           height: 56,
           child: TextFormField(
-            controller:      controller,
-            focusNode:       focusNode,
-            enabled:         !isLoading,
+            controller:      widget.controller,
+            focusNode:       widget.focusNode,
+            enabled:         !widget.isLoading,
             keyboardType:    TextInputType.number,
             textAlign:       TextAlign.center,
             maxLength:       1,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style:           theme.textTheme.headlineSmall?.copyWith(
+            style: GoogleFonts.nunito(
+              fontSize:   24,
               fontWeight: FontWeight.w700,
+              color:      theme.colorScheme.onSurface,
             ),
-            onChanged: onChanged,
+            onChanged: widget.onChanged,
             decoration: InputDecoration(
               counterText: '',
               filled:      true,
-              fillColor:   hasError
-                  ? colors.negative.withValues(alpha: 0.08)
-                  : focusNode.hasFocus
+              fillColor:   widget.hasError
+                  ? widget.colors.negative.withValues(alpha: 0.08)
+                  : widget.focusNode.hasFocus
                       ? theme.colorScheme.primary.withValues(alpha: 0.06)
                       : theme.colorScheme.surfaceContainerHighest,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:   BorderSide(
-                  color: hasError ? colors.negative : theme.colorScheme.outline,
+                borderSide: BorderSide(
+                  color: widget.hasError
+                      ? widget.colors.negative
+                      : theme.colorScheme.outline,
                   width: 2,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:   BorderSide(
-                  color: hasError
-                      ? colors.negative
+                borderSide: BorderSide(
+                  color: widget.hasError
+                      ? widget.colors.negative
                       : theme.colorScheme.outline.withValues(alpha: 0.5),
                   width: 1.5,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:   BorderSide(
-                  color: hasError ? colors.negative : theme.colorScheme.primary,
+                borderSide: BorderSide(
+                  color: widget.hasError
+                      ? widget.colors.negative
+                      : theme.colorScheme.primary,
                   width: 2.5,
                 ),
               ),
@@ -384,8 +411,8 @@ class _ResendRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme      = Theme.of(context);
-    final canResend  = secondsLeft == 0;
+    final theme     = Theme.of(context);
+    final canResend = secondsLeft == 0;
 
     return Column(
       children: [

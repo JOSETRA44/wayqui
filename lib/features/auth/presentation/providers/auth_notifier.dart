@@ -46,7 +46,21 @@ final authProvider =
 class AuthNotifier extends AsyncNotifier<UserEntity?> {
   @override
   Future<UserEntity?> build() async {
-    return ref.watch(_authRepositoryProvider).currentUser;
+    final repo = ref.read(_authRepositoryProvider);
+
+    // Subscribe to Supabase auth state stream so the provider stays reactive
+    // after the initial build: handles INITIAL_SESSION (cold-start session
+    // restore), TOKEN_REFRESHED, and any sign-in/out triggered externally.
+    final sub = repo.authStateChanges.listen((user) {
+      // Skip updates while an explicit operation (signIn, signOut, verifyOtp)
+      // is in progress — those methods manage state themselves.
+      if (!state.isLoading) state = AsyncData(user);
+    });
+    ref.onDispose(sub.cancel);
+
+    // Synchronous read: valid because Supabase.initialize() is awaited before
+    // runApp(), so the persisted session is already available at this point.
+    return repo.currentUser;
   }
 
   // ── Sign In ───────────────────────────────────────────────────
