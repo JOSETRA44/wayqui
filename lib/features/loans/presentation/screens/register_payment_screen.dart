@@ -158,10 +158,13 @@ class _RegisterPaymentScreenState
         backgroundColor: colors.positive,
         behavior:        SnackBarBehavior.floating,
       ));
-    } catch (e) {
+    } catch (e, st) {
+      // Log ALWAYS — before the mounted check so silent failures become visible.
+      debugPrint('[RegisterPayment] ERROR: $e');
+      debugPrint('[RegisterPayment] STACK: $st');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:         Text('Error al registrar: $e'),
+        content:         Text(e.toString().replaceAll('Exception: ', '')),
         backgroundColor: Theme.of(context).colorScheme.error,
         behavior:        SnackBarBehavior.floating,
       ));

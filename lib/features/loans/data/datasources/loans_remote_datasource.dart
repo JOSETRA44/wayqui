@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -88,8 +90,25 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
   @override
   Future<Map<String, dynamic>> registerPayment(
       Map<String, dynamic> params) async {
-    final r = await _client.rpc('register_payment', params: params);
-    return Map<String, dynamic>.from(r as Map);
+    debugPrint('[RPC] register_payment → params: $params');
+    try {
+      final r = await _client
+          .rpc('register_payment', params: params)
+          .timeout(const Duration(seconds: 20));
+      debugPrint('[RPC] register_payment ← success: $r');
+      return Map<String, dynamic>.from(r as Map);
+    } on TimeoutException {
+      debugPrint('[RPC] register_payment ← TIMEOUT (>20s)');
+      throw Exception(
+          'El servidor tardó demasiado. Verifica tu conexión e intenta de nuevo.');
+    } on PostgrestException catch (e) {
+      debugPrint('[RPC] register_payment ← PostgrestException '
+          'code=${e.code} msg=${e.message} details=${e.details}');
+      throw Exception(_rpcErrorMessage(e));
+    } catch (e, st) {
+      debugPrint('[RPC] register_payment ← ERROR: $e\n$st');
+      throw Exception('Error al registrar el pago: $e');
+    }
   }
 
   /// Uploads [localFilePath] bytes to the `payment_proofs` bucket.
@@ -99,13 +118,33 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
       String loanId, String localFilePath) async {
     final bytes = await File(localFilePath).readAsBytes();
     final storagePath = '$loanId/${_uuid.v4()}.jpg';
-    await _client.storage.from('payment_proofs').uploadBinary(
-          storagePath,
-          bytes,
-          fileOptions:
-              const FileOptions(contentType: 'image/jpeg', upsert: false),
-        );
-    return storagePath;
+    debugPrint('[Storage] uploading ${bytes.length} bytes → '
+        'payment_proofs/$storagePath');
+    try {
+      await _client.storage
+          .from('payment_proofs')
+          .uploadBinary(
+            storagePath,
+            bytes,
+            fileOptions:
+                const FileOptions(contentType: 'image/jpeg', upsert: false),
+          )
+          .timeout(const Duration(seconds: 30));
+      debugPrint('[Storage] upload OK → $storagePath');
+      return storagePath;
+    } on TimeoutException {
+      debugPrint('[Storage] upload TIMEOUT (>30s)');
+      throw Exception(
+          'La subida del comprobante tardó demasiado. '
+          'Verifica tu conexión e intenta de nuevo.');
+    } on StorageException catch (e) {
+      debugPrint('[Storage] StorageException '
+          'statusCode=${e.statusCode} msg=${e.message} error=${e.error}');
+      throw Exception(_storageErrorMessage(e));
+    } catch (e, st) {
+      debugPrint('[Storage] ERROR: $e\n$st');
+      throw Exception('Error al subir el comprobante: $e');
+    }
   }
 
   @override
@@ -158,4 +197,44 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
   @override
   Future<void> requestPayment(String loanId) =>
       _client.rpc('request_payment', params: {'p_loan_id': loanId});
+
+  // ── Error message helpers ────────────────────────────────────────────────
+
+  static String _rpcErrorMessage(PostgrestException e) {
+    final code = e.code ?? '';
+    final msg  = e.message.toLowerCase();
+    if (code == 'PGRST301' || msg.contains('jwt')) {
+      return 'Sesión expirada. Vuelve a iniciar sesión.';
+    }
+    if (code == '42501' || msg.contains('permission') || msg.contains('rls')) {
+      return 'Sin permisos para registrar este pago.';
+    }
+    if (code == '23505' || msg.contains('unique') || msg.contains('duplicate')) {
+      return 'Este N° de operación ya fue registrado.';
+    }
+    if (msg.contains('loan') && msg.contains('active')) {
+      return 'El préstamo ya no está activo.';
+    }
+    return 'Error del servidor: ${e.message}';
+  }
+
+  static String _storageErrorMessage(StorageException e) {
+    final status = e.statusCode ?? '';
+    final msg    = e.message.toLowerCase();
+    if (status == '403' || msg.contains('permission') || msg.contains('policy')) {
+      return 'Sin permisos para subir el comprobante. '
+          'Verifica que el bucket payment_proofs tenga RLS configurado.';
+    }
+    if (status == '404' || msg.contains('not found') || msg.contains('bucket')) {
+      return 'El bucket de almacenamiento no existe. '
+          'Crea el bucket payment_proofs en Supabase Storage.';
+    }
+    if (status == '413' || msg.contains('too large') || msg.contains('size')) {
+      return 'El archivo es demasiado grande (máx. 10 MB).';
+    }
+    if (msg.contains('already exists') || msg.contains('duplicate')) {
+      return 'Ya existe un comprobante con ese nombre. Intenta de nuevo.';
+    }
+    return 'Error de almacenamiento (${e.statusCode}): ${e.message}';
+  }
 }
