@@ -47,3 +47,10 @@ app.*.map.json
 #env_me_pregunto si alguien leerá esto en alhun momento xd
 .env
 ordenes.md
+
+# Archivos de firma de Google Play yeaaa
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+*.jks
+*.keystore
