@@ -56,9 +56,15 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   http: ^1.2.2          # RLS penetration tests
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
 
   assets:
     - .env
+
+flutter_icons:   #alguien lee esto? 12/03/2023 20:43
+  android: true
+  ios: true
+  image_path: "assets/icon/logo.png"
