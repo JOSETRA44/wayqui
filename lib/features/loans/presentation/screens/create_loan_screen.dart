@@ -44,8 +44,6 @@ class _CreateLoanScreenState extends ConsumerState<CreateLoanScreen> {
     _nameCtrl.dispose();
     _amountCtrl.dispose();
     _descCtrl.dispose();
-    // Clean up debounced search
-    ref.read(phoneSearchProvider.notifier).clear();
     super.dispose();
   }
 
@@ -93,10 +91,12 @@ class _CreateLoanScreenState extends ConsumerState<CreateLoanScreen> {
 
     await ref.read(loansProvider.notifier).createLoan(params);
 
+    if (!mounted) return;
+
     final loansState = ref.read(loansProvider);
     if (loansState.hasError) return; // error shown inline
 
-    if (mounted) context.go(AppRoutes.home);
+    context.go(AppRoutes.home);
   }
 
   @override

@@ -38,6 +38,16 @@ dependencies:
   intl: ^0.19.0                    # formato PEN (S/. 1,234.50)
   image_picker: ^1.1.2             # comprobantes de pago
 
+  # ── Archivos y evidencias ──────────────────────────────────────
+  flutter_image_compress: ^2.1.0   # reducción agresiva <100 KB antes de subir
+  path_provider: ^2.1.4            # acceso al directorio privado de la app
+  path: ^1.9.0                     # manipulación de rutas de archivo
+  uuid: ^4.5.1                     # nombres únicos para archivos de evidencia
+
+  # ── OCR local (sin servidor) ───────────────────────────────────
+  # Extrae monto y N° operación de capturas de Yape/Plin on-device.
+  google_mlkit_text_recognition: ^0.13.0
+
   # ── Caché ─────────────────────────────────────────────────────
   file_cache_flutter: ^0.0.3
 

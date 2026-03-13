@@ -17,7 +17,23 @@
       "mcp__supabase__execute_sql",
       "mcp__supabase__get_logs",
       "mcp__supabase__search_docs",
-      "Bash(cd /c/Users/USER/wayqui && flutter analyze lib/features/auth/presentation/screens/otp_verify_screen.dart 2>&1)"
+      "Bash(cd /c/Users/USER/wayqui && flutter analyze lib/features/auth/presentation/screens/otp_verify_screen.dart 2>&1)",
+      "Bash(curl -s -X POST \"https://qiuhgklbnydxjmtijjke.supabase.co/rest/v1/rpc/query\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpdWhna2xibnlkeGptdGlqamtlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjU2MjY2OCwiZXhwIjoyMDg4MTM4NjY4fQ.dMb6kNijyGxAdkywtW_2qF72j9nQE4MPv2yIvLUuqxo\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpdWhna2xibnlkeGptdGlqamtlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjU2MjY2OCwiZXhwIjoyMDg4MTM4NjY4fQ.dMb6kNijyGxAdkywtW_2qF72j9nQE4MPv2yIvLUuqxo\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT 1\"\"}')",
+      "Bash(# The pooler IS accessible at aws-0-us-east-1.pooler.supabase.com:6543 # Let''s try using psql directly if available which psql || echo \"\"psql not found\"\" # Try Python with pg8000 or psycopg2 python3 -c \"\"import psycopg2; print\\(''psycopg2 available''\\)\"\" || echo \"\"no psycopg2\"\" python3 -c \"\"import pg8000; print\\(''pg8000 available''\\)\"\" || echo \"\"no pg8000\"\" python3 -c \"\"import asyncpg; print\\(''asyncpg available''\\)\"\" || echo \"\"no asyncpg\"\" # Check if any postgres driver is available python3 -c \"\"import pkg_resources; pkgs=[p.project_name for p in pkg_resources.working_set]; print\\([p for p in pkgs if ''pg'' in p.lower\\(\\) or ''postgres'' in p.lower\\(\\) or ''psyco'' in p.lower\\(\\)]\\)\"\")",
+      "Bash(python3 -c \" import sys, json d = json.load\\(sys.stdin\\) types = d.get\\(''data'',{}\\).get\\(''__schema'',{}\\).get\\(''types'',[]\\) for t in types: if t.get\\(''name''\\) and not t[''name''].startswith\\(''__''\\) and t.get\\(''fields''\\): print\\(f\"\"=== {t[''name'']} ===\"\"\\) for f in \\(t[''fields''] or []\\): print\\(f\"\" {f[''name'']}: {f[''type''][''name''] or f[''type''][''kind'']}\"\"\\) \")",
+      "Bash(supabase --version)",
+      "Bash(cmd /c \"supabase --version\")",
+      "Bash(SUPABASE_URL=\"https://qiuhgklbnydxjmtijjke.supabase.co\")",
+      "Bash(SERVICE_ROLE_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpdWhna2xibnlkeGptdGlqamtlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjU2MjY2OCwiZXhwIjoyMDg4MTM4NjY4fQ.dMb6kNijyGxAdkywtW_2qF72j9nQE4MPv2yIvLUuqxo\")",
+      "Bash(__NEW_LINE_11ef0f030879785d__ curl -s -X GET \"$SUPABASE_URL/rest/v1/\" -H \"apikey: $SERVICE_ROLE_KEY\")",
+      "Bash(python3 -c \":*)",
+      "Bash(npx supabase --help)",
+      "Bash(npx supabase db --help)",
+      "Bash(npx supabase db push --help)",
+      "Bash(npx supabase link --help)",
+      "Bash(npx supabase migration --help)",
+      "Bash(npx supabase migration list --help)",
+      "Bash(npx supabase projects list)"
     ]
   }
 }

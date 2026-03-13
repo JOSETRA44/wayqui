@@ -54,22 +54,37 @@ class LoansRepositoryImpl implements LoansRepository {
       _ds.getTransactions(loanId);
 
   @override
-  Future<LoanTransactionEntity> registerPayment({
+  Future<String> registerPayment({
     required String        loanId,
-    required String        payerId,
     required double        amount,
     required PaymentMethod paymentMethod,
-    required String        checksum,
     String?                notes,
+    String?                operationId,
+    String?                evidencePath,
+    Map<String, dynamic>?  paymentMetadata,
+  }) async {
+    final result = await _ds.registerPayment({
+      'p_loan_id':        loanId,
+      'p_amount':         amount,
+      'p_payment_method': paymentMethod.value,
+      if (notes           != null) 'p_notes':            notes,
+      if (operationId     != null) 'p_operation_id':     operationId,
+      if (evidencePath    != null) 'p_evidence_path':    evidencePath,
+      if (paymentMetadata != null) 'p_payment_metadata': paymentMetadata,
+    });
+    return result['transaction_id'] as String;
+  }
+
+  @override
+  Future<String> uploadPaymentEvidence({
+    required String loanId,
+    required String localFilePath,
   }) =>
-      _ds.registerPayment({
-        'loan_id':        loanId,
-        'payer_id':       payerId,
-        'amount':         amount,
-        'payment_method': paymentMethod.value,
-        'checksum':       checksum,
-        if (notes != null) 'notes': notes,
-      });
+      _ds.uploadPaymentEvidence(loanId, localFilePath);
+
+  @override
+  Future<String> getEvidenceUrl(String storagePath) =>
+      _ds.getEvidenceUrl(storagePath);
 
   @override
   Future<UserSearchResult> searchUserByPhone(String phone) =>
@@ -80,10 +95,22 @@ class LoansRepositoryImpl implements LoansRepository {
       _ds.confirmTransaction(transactionId);
 
   @override
+  Future<void> disputeTransaction(String transactionId, {String? reason}) =>
+      _ds.disputeTransaction(transactionId, reason: reason);
+
+  @override
+  Future<void> rejectTransaction(String transactionId, {String? reason}) =>
+      _ds.rejectTransaction(transactionId, reason: reason);
+
+  @override
   Future<Map<String, dynamic>> getUserSummary() =>
       _ds.getUserSummary();
 
   @override
   Future<Map<String, dynamic>> getLoanWithTransactions(String loanId) =>
       _ds.getLoanWithTransactions(loanId);
+
+  @override
+  Future<void> requestPayment(String loanId) =>
+      _ds.requestPayment(loanId);
 }

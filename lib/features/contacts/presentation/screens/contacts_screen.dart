@@ -75,6 +75,7 @@ class ContactsScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () {
           HapticFeedback.mediumImpact();
           context.push(AppRoutes.createLoan);

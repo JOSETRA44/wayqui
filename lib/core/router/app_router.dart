@@ -12,7 +12,9 @@ import '../../features/contacts/presentation/screens/contacts_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/loans/presentation/screens/create_loan_screen.dart';
 import '../../features/loans/presentation/screens/loan_detail_screen.dart';
+import '../../features/loans/presentation/screens/register_payment_screen.dart';
 import '../../features/navigation/presentation/main_shell.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,10 +37,15 @@ class AppRoutes {
   static const String profile  = '/profile';
 
   // ── Modal (pushed over shell) ──────────────────────────────────
-  static const String createLoan = '/create-loan';
-  static const String loanDetail = '/loan/:loanId';
+  static const String createLoan      = '/create-loan';
+  static const String loanDetail      = '/loan/:loanId';
+  // registerPayment is a child of loanDetail — relative path, no :loanId segment
+  static const String registerPayment = 'register-payment';
+  static const String notifications   = '/notifications';
 
-  static String loanDetailPath(String loanId) => '/loan/$loanId';
+  static String loanDetailPath(String loanId)      => '/loan/$loanId';
+  // Full path navigable from anywhere: /loan/<id>/register-payment
+  static String registerPaymentPath(String loanId) => '/loan/$loanId/register-payment';
 }
 
 /// Rutas accesibles sin autenticar.
@@ -161,12 +168,30 @@ final routerProvider = Provider<GoRouter>((ref) {
         name:    'create-loan',
         builder: (_, __) => const CreateLoanScreen(),
       ),
+      // ── LoanDetail + RegisterPayment as parent/child.
+      // ── Child route inherits :loanId from parent's pathParameters.
+      // ── This avoids the GoRouter #140586 key-reservation collision that
+      // ── occurs when a top-level route is pushed a second time while its
+      // ── departing copy is still in the Navigator history.
       GoRoute(
-        path:    AppRoutes.loanDetail,
-        name:    'loan-detail',
-        builder: (_, state) => LoanDetailScreen(
-          loanId: state.pathParameters['loanId']!,
+        path:        AppRoutes.loanDetail,
+        pageBuilder: (_, state) => MaterialPage(
+          child: LoanDetailScreen(loanId: state.pathParameters['loanId']!),
         ),
+        routes: [
+          GoRoute(
+            path:        AppRoutes.registerPayment,   // 'register-payment' (relative)
+            pageBuilder: (_, state) => MaterialPage(
+              child: RegisterPaymentScreen(
+                  loanId: state.pathParameters['loanId']!),
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path:    AppRoutes.notifications,
+        name:    'notifications',
+        builder: (_, __) => const NotificationsScreen(),
       ),
     ],
   );

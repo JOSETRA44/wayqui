@@ -12,6 +12,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../../loans/domain/entities/loan_entity.dart';
 import '../../../loans/presentation/providers/loans_providers.dart';
+import '../../../notifications/presentation/widgets/notification_bell.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -75,11 +76,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 ],
               ),
               actions: [
-                IconButton(
-                  icon:    const FaIcon(FontAwesomeIcons.bell, size: 16),
-                  tooltip: 'Notificaciones',
-                  onPressed: () {},
-                ),
+                const NotificationBell(),
                 const SizedBox(width: AppConstants.spacing8),
               ],
             ),
@@ -149,6 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () {
           HapticFeedback.mediumImpact();
           context.push(AppRoutes.createLoan);

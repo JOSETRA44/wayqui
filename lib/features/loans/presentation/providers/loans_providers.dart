@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/providers/supabase_providers.dart';
 import '../../data/datasources/loans_remote_datasource.dart';
 import '../../data/repositories/loans_repository_impl.dart';
@@ -79,6 +81,25 @@ class LoansNotifier extends AutoDisposeAsyncNotifier<LoansSnapshot> {
     await ref.read(loansRepositoryProvider).confirmTransaction(transactionId);
     ref.invalidateSelf();
   }
+
+  Future<void> disputeTransaction(String transactionId,
+      {String? reason}) async {
+    await ref
+        .read(loansRepositoryProvider)
+        .disputeTransaction(transactionId, reason: reason);
+    ref.invalidateSelf();
+  }
+
+  Future<void> rejectTransaction(String transactionId,
+      {String? reason}) async {
+    await ref
+        .read(loansRepositoryProvider)
+        .rejectTransaction(transactionId, reason: reason);
+    ref.invalidateSelf();
+  }
+
+  Future<void> requestPayment(String loanId) =>
+      ref.read(loansRepositoryProvider).requestPayment(loanId);
 }
 
 // ─── Loan detail (by ID) ─────────────────────────────────────────────────────
@@ -88,6 +109,14 @@ final loanDetailProvider =
   (ref, loanId) => ref
       .watch(loansRepositoryProvider)
       .getLoanWithTransactions(loanId),
+);
+
+// ─── Evidence signed URL (1 h TTL) ────────────────────────────────────────────
+
+final evidenceUrlProvider =
+    FutureProvider.autoDispose.family<String, String>(
+  (ref, storagePath) =>
+      ref.watch(loansRepositoryProvider).getEvidenceUrl(storagePath),
 );
 
 // ─── Phone search (debounced) ─────────────────────────────────────────────────
@@ -105,7 +134,7 @@ class PhoneSearchNotifier
     return null;
   }
 
-  /// Búsqueda con debounce de 500ms para no saturar el servidor.
+  /// Búsqueda con debounce de 500 ms para no saturar el servidor.
   void search(String phone) {
     _debounce?.cancel();
     if (phone.replaceAll(RegExp(r'\s'), '').length < 9) {

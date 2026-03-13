@@ -46,3 +46,4 @@ app.*.map.json
 
 #env_me_pregunto si alguien leerá esto en alhun momento xd
 .env
+ordenes.md
