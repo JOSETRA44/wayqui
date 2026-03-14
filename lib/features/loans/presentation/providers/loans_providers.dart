@@ -100,6 +100,9 @@ class LoansNotifier extends AutoDisposeAsyncNotifier<LoansSnapshot> {
 
   Future<void> requestPayment(String loanId) =>
       ref.read(loansRepositoryProvider).requestPayment(loanId);
+
+  Future<void> sendEmailReminder(String loanId) =>
+      ref.read(loansRepositoryProvider).sendEmailReminder(loanId);
 }
 
 // ─── Loan detail (by ID) ─────────────────────────────────────────────────────

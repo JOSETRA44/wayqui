@@ -25,6 +25,7 @@ abstract class LoansRemoteDataSource {
   Future<Map<String, dynamic>>        getUserSummary();
   Future<Map<String, dynamic>>        getLoanWithTransactions(String loanId);
   Future<void>                        requestPayment(String loanId);
+  Future<void>                        sendEmailReminder(String loanId);
 }
 
 class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
@@ -197,6 +198,36 @@ class LoansRemoteDataSourceImpl implements LoansRemoteDataSource {
   @override
   Future<void> requestPayment(String loanId) =>
       _client.rpc('request_payment', params: {'p_loan_id': loanId});
+
+  @override
+  Future<void> sendEmailReminder(String loanId) async {
+    debugPrint('[EdgeFn] send-reminder → loan_id: $loanId');
+    try {
+      final r = await _client.functions
+          .invoke('send-reminder', body: {'loan_id': loanId})
+          .timeout(const Duration(seconds: 15));
+      debugPrint('[EdgeFn] send-reminder ← status: ${r.status} data: ${r.data}');
+      // functions.invoke() throws FunctionException on non-2xx, but guard anyway
+      if (r.status >= 400) {
+        final msg = (r.data as Map?)?['error'] as String?
+            ?? 'Error del servidor (${r.status})';
+        throw Exception(msg);
+      }
+    } on TimeoutException {
+      debugPrint('[EdgeFn] send-reminder ← TIMEOUT (>15s)');
+      throw Exception('El servidor tardó demasiado. Intenta de nuevo.');
+    } on FunctionException catch (e) {
+      // Extract server-side error message from the response body when available.
+      final serverMsg = (e.details as Map?)?['error'] as String?;
+      debugPrint('[EdgeFn] send-reminder ← FunctionException '
+          'status=${e.status} serverMsg=$serverMsg reason=${e.reasonPhrase}');
+      throw Exception(
+          serverMsg ?? e.reasonPhrase ?? 'Error al enviar el recordatorio');
+    } catch (e, st) {
+      debugPrint('[EdgeFn] send-reminder ← ERROR: $e\n$st');
+      rethrow;
+    }
+  }
 
   // ── Error message helpers ────────────────────────────────────────────────
 

@@ -58,4 +58,8 @@ abstract class LoansRepository {
   /// Creditor sends an in-app payment request to the debtor.
   /// Throws if the debtor is an external contact (no Wayqui account).
   Future<void>                   requestPayment(String loanId);
+
+  /// Creditor sends an email reminder to the debtor via the `send-reminder`
+  /// Edge Function. Requires the debtor to have a Wayqui account with an email.
+  Future<void>                   sendEmailReminder(String loanId);
 }

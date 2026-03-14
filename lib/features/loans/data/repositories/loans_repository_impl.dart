@@ -113,4 +113,8 @@ class LoansRepositoryImpl implements LoansRepository {
   @override
   Future<void> requestPayment(String loanId) =>
       _ds.requestPayment(loanId);
+
+  @override
+  Future<void> sendEmailReminder(String loanId) =>
+      _ds.sendEmailReminder(loanId);
 }

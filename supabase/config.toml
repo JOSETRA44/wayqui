@@ -1,0 +1,14 @@
+# Supabase project configuration
+# Ref: https://supabase.com/docs/guides/functions/function-configuration
+
+# ── Edge Functions ────────────────────────────────────────────────────────────
+
+# notify-payment: triggered by Database Webhooks with service_role key.
+# El Gateway valida el JWT del webhook automáticamente → verify_jwt = true (default).
+
+# send-reminder: invocada directamente desde Flutter con el JWT del usuario.
+# verify_jwt = false porque el Gateway no procesa apikeys de apps móviles
+# de forma consistente. La función valida el JWT manualmente vía
+# auth.getUser(token), que es igualmente seguro y más explícito.
+[functions.send-reminder]
+verify_jwt = false

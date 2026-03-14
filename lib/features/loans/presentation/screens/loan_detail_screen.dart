@@ -10,7 +10,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/extensions/wayqui_colors.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/services/payment_bridge_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/loan_entity.dart';
@@ -106,8 +105,8 @@ class _LoanDetailBody extends ConsumerWidget {
 
     final isCreditor  = loan.creditorId == uid;
     final debtorPhone = loan.debtorPhone;
-    final canPayViaApp =
-        loan.isActive && debtorPhone != null && isCreditor;
+    final canEmailRemind =
+        loan.isActive && isCreditor && loan.debtorId != null;
     final canRequestPayment =
         loan.isActive && isCreditor &&
         (loan.debtorId != null || debtorPhone != null);
@@ -127,27 +126,20 @@ class _LoanDetailBody extends ConsumerWidget {
 
           const SizedBox(height: AppConstants.spacing16),
 
-          if (canPayViaApp) ...[
-            _PaymentButtons(
-              phone:       debtorPhone,
-              amount:      loan.remainingAmount,
-              description: loan.description,
-              colors:      colors,
-            ).animate().fadeIn(delay: 200.ms),
-            const SizedBox(height: AppConstants.spacing16),
-          ],
-
           if (canRequestPayment) ...[
             _RequestPaymentCard(
-              loan:       loan,
-              colors:     colors,
-              onNotify:   loan.debtorId != null
+              loan:           loan,
+              colors:         colors,
+              onEmailRemind:  canEmailRemind
+                  ? () => _sendEmailReminder(context, ref, loan)
+                  : null,
+              onNotify:       loan.debtorId != null
                   ? () => _requestPayment(context, ref, loan)
                   : null,
-              onWhatsApp: debtorPhone != null
+              onWhatsApp:     debtorPhone != null
                   ? () => _remindWhatsApp(loan)
                   : null,
-            ).animate().fadeIn(delay: 240.ms),
+            ).animate().fadeIn(delay: 200.ms),
             const SizedBox(height: AppConstants.spacing16),
           ],
 
@@ -340,6 +332,48 @@ class _LoanDetailBody extends ConsumerWidget {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  Future<void> _sendEmailReminder(
+    BuildContext context,
+    WidgetRef    ref,
+    LoanEntity   loan,
+  ) async {
+    final name = loan.debtorName ?? 'el deudor';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title:   const Text('Enviar recordatorio'),
+        content: Text(
+          '¿Enviar un recordatorio por correo a $name '
+          'sobre su saldo pendiente?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Enviar'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+
+    HapticFeedback.mediumImpact();
+    try {
+      await ref.read(loansProvider.notifier).sendEmailReminder(loan.id);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content:  Text('Recordatorio enviado a $name'),
+        behavior: SnackBarBehavior.floating,
+      ));
+    } catch (e) {
+      if (context.mounted) {
+        _showError(context, e.toString().replaceAll('Exception: ', ''));
+      }
+    }
+  }
+
   Future<void> _requestPayment(
     BuildContext context,
     WidgetRef    ref,
@@ -386,17 +420,20 @@ class _LoanDetailBody extends ConsumerWidget {
 // Sub-widgets
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Card shown to the creditor with two quick-action buttons:
-/// "Solicitar pago" (in-app notification) and "Recordar por WhatsApp".
+/// Card shown to the creditor with actions to remind the debtor.
+/// Primary: email reminder (requires debtor Wayqui account).
+/// Secondary: in-app notification + WhatsApp.
 class _RequestPaymentCard extends StatelessWidget {
-  final LoanEntity   loan;
-  final WayquiColors colors;
+  final LoanEntity    loan;
+  final WayquiColors  colors;
+  final VoidCallback? onEmailRemind;
   final VoidCallback? onNotify;
   final VoidCallback? onWhatsApp;
 
   const _RequestPaymentCard({
     required this.loan,
     required this.colors,
+    this.onEmailRemind,
     this.onNotify,
     this.onWhatsApp,
   });
@@ -404,6 +441,8 @@ class _RequestPaymentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasSecondary = onNotify != null || onWhatsApp != null;
+
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacing16),
       decoration: BoxDecoration(
@@ -418,29 +457,52 @@ class _RequestPaymentCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              FaIcon(FontAwesomeIcons.bell,
-                  size: 13, color: theme.colorScheme.primary),
-              const SizedBox(width: AppConstants.spacing8),
-              Text('Solicitar pago',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: theme.colorScheme.primary,
-                  )),
-            ],
-          ),
+          // ── Header ────────────────────────────────────────────────
+          Row(children: [
+            FaIcon(FontAwesomeIcons.bell,
+                size: 13, color: theme.colorScheme.primary),
+            const SizedBox(width: AppConstants.spacing8),
+            Text('Recordar al deudor',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                )),
+          ]),
           const SizedBox(height: AppConstants.spacing12),
-          Row(
-            children: [
+
+          // ── Primary: email ─────────────────────────────────────────
+          if (onEmailRemind != null)
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onEmailRemind,
+                icon:  const FaIcon(FontAwesomeIcons.envelope, size: 13),
+                label: const Text('Enviar recordatorio por correo'),
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppConstants.borderRadius),
+                  ),
+                ),
+              ),
+            ),
+
+          if (onEmailRemind != null && hasSecondary)
+            const SizedBox(height: AppConstants.spacing8),
+
+          // ── Secondary row: in-app + WhatsApp ──────────────────────
+          if (hasSecondary)
+            Row(children: [
               if (onNotify != null)
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onNotify,
-                    icon:  const FaIcon(FontAwesomeIcons.paperPlane, size: 13),
-                    label: const Text('Notificar en app'),
+                    icon:  const FaIcon(FontAwesomeIcons.paperPlane, size: 12),
+                    label: const Text('En app'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: theme.colorScheme.primary,
-                      side: BorderSide(color: theme.colorScheme.primary),
+                      side: BorderSide(
+                          color: theme.colorScheme.primary
+                              .withValues(alpha: 0.6)),
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(AppConstants.borderRadius),
@@ -467,8 +529,7 @@ class _RequestPaymentCard extends StatelessWidget {
                     ),
                   ),
                 ),
-            ],
-          ),
+            ]),
         ],
       ),
     );
@@ -726,187 +787,6 @@ class _AmountProgress extends StatelessWidget {
             ]),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _PaymentButtons extends StatefulWidget {
-  final String     phone;
-  final double     amount;
-  final String     description;
-  final WayquiColors colors;
-
-  const _PaymentButtons({
-    required this.phone,
-    required this.amount,
-    required this.description,
-    required this.colors,
-  });
-
-  @override
-  State<_PaymentButtons> createState() => _PaymentButtonsState();
-}
-
-class _PaymentButtonsState extends State<_PaymentButtons> {
-  bool _yapeLoading = false;
-  bool _plinLoading = false;
-
-  Future<void> _openYape() async {
-    setState(() => _yapeLoading = true);
-    HapticFeedback.lightImpact();
-    try {
-      final result = await PaymentBridgeService.openYape(
-        phoneNumber: widget.phone,
-        amount:      widget.amount,
-        description: widget.description,
-      );
-      _showLaunchFeedback(result, 'Yape');
-    } finally {
-      if (mounted) setState(() => _yapeLoading = false);
-    }
-  }
-
-  Future<void> _openPlin() async {
-    setState(() => _plinLoading = true);
-    HapticFeedback.lightImpact();
-    try {
-      final result = await PaymentBridgeService.openPlin(
-        phoneNumber: widget.phone,
-        amount:      widget.amount,
-      );
-      _showLaunchFeedback(result, 'Plin');
-    } finally {
-      if (mounted) setState(() => _plinLoading = false);
-    }
-  }
-
-  void _showLaunchFeedback(LaunchResult result, String app) {
-    if (!mounted) return;
-    final msg = switch (result) {
-      LaunchResult.success      => 'Número copiado — continúa en $app',
-      LaunchResult.openedStore  => '$app no instalado — redirigido a Play Store',
-      LaunchResult.notInstalled => 'No se pudo abrir $app',
-    };
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content:  Text(msg),
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: result == LaunchResult.success
-          ? widget.colors.positive
-          : Theme.of(context).colorScheme.secondary,
-    ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeader(
-          label: 'Cobrar por app',
-          icon:  FontAwesomeIcons.mobileScreen,
-        ),
-        const SizedBox(height: AppConstants.spacing12),
-        Row(children: [
-          Expanded(
-            child: _AppPayButton(
-              label:     'Cobrar por\nYape',
-              color:     widget.colors.yape,
-              isLoading: _yapeLoading,
-              icon:      FontAwesomeIcons.y,
-              amount:    widget.amount,
-              onTap:     _openYape,
-            ),
-          ),
-          const SizedBox(width: AppConstants.spacing12),
-          Expanded(
-            child: _AppPayButton(
-              label:     'Cobrar por\nPlin',
-              color:     widget.colors.plin,
-              isLoading: _plinLoading,
-              icon:      FontAwesomeIcons.p,
-              amount:    widget.amount,
-              onTap:     _openPlin,
-            ),
-          ),
-        ]),
-        const SizedBox(height: AppConstants.spacing8),
-        Row(children: [
-          FaIcon(FontAwesomeIcons.copy,
-              size: 11,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
-          const SizedBox(width: 6),
-          Text(
-            'El número se copiará automáticamente.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
-          ),
-        ]),
-      ],
-    );
-  }
-}
-
-class _AppPayButton extends StatelessWidget {
-  final String     label;
-  final Color      color;
-  final bool       isLoading;
-  final IconData   icon;
-  final double     amount;
-  final VoidCallback onTap;
-
-  const _AppPayButton({
-    required this.label,
-    required this.color,
-    required this.isLoading,
-    required this.icon,
-    required this.amount,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.spacing16,
-          vertical:   AppConstants.spacing12,
-        ),
-        decoration: BoxDecoration(
-          color:        color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          border: Border.all(
-              color: color, width: AppConstants.borderWidth),
-        ),
-        child: isLoading
-            ? Center(
-                child: SizedBox(
-                  width: 20, height: 20,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: color),
-                ),
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FaIcon(icon, size: 18, color: color),
-                  const SizedBox(height: AppConstants.spacing8),
-                  Text(label,
-                      style: theme.textTheme.labelLarge
-                          ?.copyWith(color: color)),
-                  const SizedBox(height: 4),
-                  Text(
-                    CurrencyFormatter.format(amount),
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ],
-              ),
       ),
     );
   }
