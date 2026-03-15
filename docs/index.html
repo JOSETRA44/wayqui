@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Wayqui — La forma más inteligente y segura de gestionar préstamos personales en Perú. Integración nativa con Yape y Plin, seguridad SHA-256 y historial de pagos en tiempo real.">
+  <meta property="og:title"       content="Wayqui — Gestión inteligente de préstamos">
+  <meta property="og:description" content="Registra préstamos, cobra con Yape o Plin y mantén un historial seguro. Próximamente en Google Play.">
+  <meta property="og:type"        content="website">
+  <title>Wayqui — Gestión inteligente de préstamos personales</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Nunito', 'sans-serif'] },
+          colors: {
+            brand: { 400:'#34d399', 500:'#10b981', 600:'#059669' },
+            navy:  { 950:'#05080f', 900:'#0a0f1e', 800:'#0f172a', 700:'#1e293b' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+    .hero-bg {
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,.18) 0%, transparent 70%),
+                  linear-gradient(160deg, #05080f 0%, #0a0f1e 60%, #110a24 100%);
+    }
+    .cta-bg {
+      background: radial-gradient(ellipse 70% 80% at 50% 110%, rgba(16,185,129,.15) 0%, transparent 70%),
+                  linear-gradient(160deg, #05080f 0%, #0a0f1e 100%);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #10b981, #34d399, #6ee7b7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .phone {
+      border-radius: 38px;
+      border: 2.5px solid rgba(255,255,255,.12);
+      box-shadow: 0 40px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+    .phone-sm { border-radius: 30px; }
+
+    .card { transition: transform .2s ease, box-shadow .2s ease; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(16,185,129,.08); }
+
+    .badge-float {
+      background: rgba(255,255,255,.97);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 8px 32px rgba(0,0,0,.14);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .float { animation: float 5s ease-in-out infinite; }
+    .float-delay { animation: float 5s ease-in-out 1.5s infinite; }
+  </style>
+</head>
+
+<body class="bg-white text-slate-900">
+
+  <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+  <nav class="fixed inset-x-0 top-0 z-50 bg-navy-900/80 backdrop-blur-xl border-b border-white/[.06]">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+
+      <a href="#" class="flex items-center gap-2.5">
+        <span class="text-2xl font-black tracking-widest text-white" style="font-family:'Nunito',sans-serif">WAYQUI</span>
+        <span class="hidden sm:block text-[10px] font-bold uppercase tracking-wider bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full">Beta</span>
+      </a>
+
+      <div class="flex items-center gap-5 sm:gap-7">
+        <a href="#caracteristicas" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors duration-150">Características</a>
+        <a href="#seguridad"       class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors duration-150">Seguridad</a>
+        <a href="./privacidad.html"       class="hidden sm:block text-sm text-slate-400 hover:text-white transition-colors duration-150">Privacidad</a>
+        <a href="https://wa.me/51999999999" target="_blank" rel="noopener"
+           class="text-sm font-semibold bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white px-4 py-2 rounded-lg transition-colors duration-150">
+          Contacto
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════ HERO ═══════════════════ -->
+  <section class="hero-bg min-h-screen flex items-center pt-16">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 py-24 w-full">
+      <div class="grid lg:grid-cols-[1fr_auto] gap-12 xl:gap-20 items-center">
+
+        <!-- Copy -->
+        <div class="max-w-xl space-y-8">
+
+          <div class="space-y-1">
+            <p class="flex items-center gap-2 text-[11px] font-semibold tracking-[.18em] uppercase text-brand-400">
+              <span class="block w-6 h-px bg-brand-500"></span>
+              Fintech · Perú · 2026
+            </p>
+            <h1 class="text-[5.5rem] sm:text-[7rem] font-black leading-none tracking-tight text-white"
+                style="font-family:'Nunito',sans-serif">
+              WAYQUI
+            </h1>
+          </div>
+
+          <p class="text-xl sm:text-2xl font-light text-slate-300 leading-snug">
+            La forma más <span class="text-brand-400 font-semibold">inteligente</span> y segura de gestionar tus préstamos y finanzas personales.
+          </p>
+
+          <p class="text-slate-400 text-[15px] leading-relaxed">
+            Registra quién te debe y a quién le debes. Cobra directamente con <strong class="text-white font-semibold">Yape</strong> o <strong class="text-white font-semibold">Plin</strong>. Adjunta comprobantes fotográficos. Todo en un solo lugar, sin intermediar tu dinero.
+          </p>
+
+          <!-- CTAs -->
+          <div class="flex flex-col sm:flex-row gap-3 pt-1">
+            <button disabled aria-disabled="true"
+              class="flex items-center justify-center gap-2.5 bg-white/[.07] text-white/40 cursor-not-allowed px-6 py-3.5 rounded-xl font-semibold text-sm border border-white/[.08]">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M3.18 23.76c.31.17.67.21 1.02.1l11.67-6.72-2.58-2.58-10.11 9.2zm15.42-8.89L5.26 7.62 3.18.24C2.83.13 2.47.17 2.16.34 1.56.68 1.2 1.32 1.2 2v20c0 .68.36 1.32.96 1.66.3.17.65.2.97.1l.29-.12 12.05-8.95.26-.17-2.58-2.58zm2.22-1.34l-3.06-1.76-2.85 2.85 2.85 2.85 3.08-1.78c.88-.51.88-1.65-.02-2.16z"/>
+              </svg>
+              Próximamente en Google Play
+            </button>
+            <a href="https://wa.me/51999999999" target="_blank" rel="noopener"
+               class="flex items-center justify-center gap-2.5 bg-brand-500 hover:bg-brand-600 text-white px-6 py-3.5 rounded-xl font-semibold text-sm transition-colors duration-150">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Contactar por WhatsApp
+            </a>
+          </div>
+
+          <!-- Trust signals -->
+          <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-slate-500 pt-1">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              Integridad SHA-256
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              Almacenamiento cifrado
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+              100 % Perú
+            </span>
+          </div>
+        </div>
+
+        <!-- Phone mockup -->
+        <div class="flex justify-center lg:justify-end">
+          <div class="relative">
+            <div class="absolute inset-0 bg-brand-500/20 rounded-[56px] blur-3xl scale-105 pointer-events-none"></div>
+
+            <div class="phone float w-[220px] sm:w-[248px]">
+              <img src="./screenshots/home.png" alt="Pantalla de inicio de Wayqui mostrando balance y lista de préstamos" class="w-full block" loading="eager">
+            </div>
+
+            <!-- Floating card: pago confirmado -->
+            <div class="badge-float float-delay absolute -right-6 top-20 rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-brand-500/15 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-800 leading-none">Pago confirmado</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">S/ 150.00 · Yape</p>
+              </div>
+            </div>
+
+            <!-- Floating card: balance -->
+            <div class="badge-float float absolute -left-8 bottom-28 rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3.5 h-3.5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-800 leading-none">Balance neto</p>
+                <p class="text-[10px] text-brand-600 font-semibold mt-0.5">+S/ 350.00</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ STATS BAR ═══════════════════ -->
+  <div class="bg-navy-900 border-y border-white/[.05] py-8">
+    <div class="max-w-4xl mx-auto px-5 sm:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div>
+          <p class="text-xl font-bold text-white">Yape <span class="text-brand-500">&</span> Plin</p>
+          <p class="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Integración nativa</p>
+        </div>
+        <div>
+          <p class="text-xl font-bold text-white">SHA-256</p>
+          <p class="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Integridad de datos</p>
+        </div>
+        <div>
+          <p class="text-xl font-bold text-white">RLS</p>
+          <p class="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Seguridad por fila</p>
+        </div>
+        <div>
+          <p class="text-xl font-bold text-white">0 S/.</p>
+          <p class="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Intermediación</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ PROBLEMA / SOLUCIÓN ═══════════════════ -->
+  <section class="py-24 bg-white">
+    <div class="max-w-5xl mx-auto px-5 sm:px-8">
+      <div class="grid md:grid-cols-2 gap-10">
+
+        <div class="bg-slate-50 border border-slate-100 rounded-2xl p-8 space-y-4">
+          <span class="inline-block text-[11px] font-bold uppercase tracking-widest text-red-500 bg-red-50 px-2 py-0.5 rounded-full">El problema</span>
+          <h3 class="text-2xl font-bold text-slate-900">Los préstamos informales generan conflictos</h3>
+          <ul class="space-y-3 text-sm text-slate-500">
+            <li class="flex gap-2.5"><span class="text-red-400 mt-0.5 flex-shrink-0">✕</span>Sin registro escrito, los montos se olvidan o se distorsionan.</li>
+            <li class="flex gap-2.5"><span class="text-red-400 mt-0.5 flex-shrink-0">✕</span>Los comprobantes de Yape/Plin se pierden en el chat.</li>
+            <li class="flex gap-2.5"><span class="text-red-400 mt-0.5 flex-shrink-0">✕</span>No hay historial de pagos parciales ni fechas de vencimiento.</li>
+            <li class="flex gap-2.5"><span class="text-red-400 mt-0.5 flex-shrink-0">✕</span>Cobrar resulta incómodo sin una herramienta neutral.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-950 border border-white/[.06] rounded-2xl p-8 space-y-4">
+          <span class="inline-block text-[11px] font-bold uppercase tracking-widest text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-full">La solución</span>
+          <h3 class="text-2xl font-bold text-white">Wayqui es el registro neutral y seguro</h3>
+          <ul class="space-y-3 text-sm text-slate-400">
+            <li class="flex gap-2.5"><span class="text-brand-400 mt-0.5 flex-shrink-0">✓</span>Historial inmutable con checksum criptográfico por préstamo.</li>
+            <li class="flex gap-2.5"><span class="text-brand-400 mt-0.5 flex-shrink-0">✓</span>Adjunta comprobantes Yape/Plin directamente al pago.</li>
+            <li class="flex gap-2.5"><span class="text-brand-400 mt-0.5 flex-shrink-0">✓</span>Acreedor confirma, rechaza o disputa cada transacción.</li>
+            <li class="flex gap-2.5"><span class="text-brand-400 mt-0.5 flex-shrink-0">✓</span>Recordatorios por app, WhatsApp o correo electrónico.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FEATURES ═══════════════════ -->
+  <section id="caracteristicas" class="py-24 bg-slate-50">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+      <div class="text-center space-y-3 mb-16">
+        <span class="text-[11px] font-bold uppercase tracking-widest text-brand-500">Características</span>
+        <h2 class="text-4xl font-bold text-slate-900">Todo lo que necesitas.<br>Nada que no necesites.</h2>
+        <p class="text-slate-500 max-w-sm mx-auto text-[15px]">Una app financiera construida para la forma en que los peruanos nos prestamos dinero.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <div class="card bg-white rounded-2xl p-6 border border-slate-100 space-y-4">
+          <div class="w-10 h-10 bg-brand-500/10 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-[15px] mb-1.5">Registro de Préstamos</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Crea préstamos entre conocidos con monto, descripción y fecha de vencimiento. Búsqueda de usuarios por teléfono.</p>
+          </div>
+        </div>
+
+        <div class="card bg-white rounded-2xl p-6 border border-slate-100 space-y-4">
+          <div class="w-10 h-10 bg-violet-500/10 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-[15px] mb-1.5">Cobrar con Yape y Plin</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Deep links nativos a las apps de pago peruanas. El número del deudor se copia automáticamente. Sin intermediar dinero.</p>
+          </div>
+        </div>
+
+        <div class="card bg-white rounded-2xl p-6 border border-slate-100 space-y-4">
+          <div class="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-[15px] mb-1.5">Comprobantes con OCR</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Adjunta fotos del voucher. OCR automático extrae monto y número de operación de comprobantes Yape/Plin.</p>
+          </div>
+        </div>
+
+        <div class="card bg-white rounded-2xl p-6 border border-slate-100 space-y-4">
+          <div class="w-10 h-10 bg-sky-500/10 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-[15px] mb-1.5">Recordatorios Inteligentes</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Notificaciones en app, recordatorio por WhatsApp y envío de correo electrónico al deudor con un solo toque.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ SCREENSHOTS ═══════════════════ -->
+  <section class="py-24 bg-white overflow-hidden">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+      <div class="text-center space-y-3 mb-16">
+        <span class="text-[11px] font-bold uppercase tracking-widest text-brand-500">La app</span>
+        <h2 class="text-4xl font-bold text-slate-900">Diseñado con atención al detalle</h2>
+        <p class="text-slate-500 max-w-sm mx-auto text-[15px]">Interfaz clara, rápida y oscura — pensada para las finanzas del día a día.</p>
+      </div>
+
+      <div class="flex gap-6 sm:gap-8 overflow-x-auto pb-6 -mx-5 px-5 sm:-mx-8 sm:px-8 sm:justify-center snap-x snap-mandatory">
+
+        <figure class="flex-shrink-0 snap-center space-y-3 text-center">
+          <div class="phone phone-sm w-[145px] sm:w-[165px] mx-auto">
+            <img src="./screenshots/home.png" alt="Pantalla de inicio: balance y préstamos activos" class="w-full block" loading="lazy">
+          </div>
+          <figcaption class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Inicio</figcaption>
+        </figure>
+
+        <figure class="flex-shrink-0 snap-center space-y-3 text-center">
+          <div class="phone phone-sm w-[145px] sm:w-[165px] mx-auto">
+            <img src="./screenshots/payments_detail.png" alt="Detalle de préstamo con progreso, Yape/Plin e historial" class="w-full block" loading="lazy">
+          </div>
+          <figcaption class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Detalle</figcaption>
+        </figure>
+
+        <figure class="flex-shrink-0 snap-center space-y-3 text-center">
+          <div class="phone phone-sm w-[145px] sm:w-[165px] mx-auto">
+            <img src="./screenshots/activity.png" alt="Pantalla de actividad con historial de transacciones por mes" class="w-full block" loading="lazy">
+          </div>
+          <figcaption class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Actividad</figcaption>
+        </figure>
+
+        <figure class="flex-shrink-0 snap-center space-y-3 text-center">
+          <div class="phone phone-sm w-[145px] sm:w-[165px] mx-auto">
+            <img src="./screenshots/profile.png" alt="Pantalla de perfil con estadísticas de préstamos" class="w-full block" loading="lazy">
+          </div>
+          <figcaption class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Perfil</figcaption>
+        </figure>
+
+        <figure class="flex-shrink-0 snap-center space-y-3 text-center">
+          <div class="phone phone-sm w-[145px] sm:w-[165px] mx-auto">
+            <img src="./screenshots/contacts.png" alt="Pantalla de contactos de Wayqui" class="w-full block" loading="lazy">
+          </div>
+          <figcaption class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Contactos</figcaption>
+        </figure>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ SEGURIDAD ═══════════════════ -->
+  <section id="seguridad" class="py-24 bg-slate-950">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <!-- Phone -->
+        <div class="flex justify-center order-2 lg:order-1">
+          <div class="relative">
+            <div class="absolute inset-0 bg-brand-500/15 rounded-[48px] blur-3xl scale-105 pointer-events-none"></div>
+            <div class="phone w-[220px] sm:w-[240px] relative">
+              <img src="./screenshots/payments_detail.png" alt="Detalle de seguridad del préstamo" class="w-full block" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- Copy -->
+        <div class="space-y-8 order-1 lg:order-2">
+          <div class="space-y-3">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-brand-400">Seguridad</span>
+            <h2 class="text-4xl font-bold text-white">Infraestructura de nivel bancario</h2>
+            <p class="text-slate-400 leading-relaxed text-[15px]">Construido sobre la plataforma más confiable del mercado, con las mejores prácticas de seguridad financiera aplicadas en cada capa.</p>
+          </div>
+
+          <div class="space-y-5">
+            <div class="flex gap-4 group">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white text-sm">Verificación OTP de 6 dígitos</h4>
+                <p class="text-slate-500 text-[13px] mt-0.5">Confirmación de identidad por email en el registro. Sin contraseñas débiles.</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white text-sm">Row Level Security (RLS)</h4>
+                <p class="text-slate-500 text-[13px] mt-0.5">Cada usuario accede únicamente a sus datos. Las políticas se aplican a nivel de base de datos, no de código.</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white text-sm">Checksum SHA-256 por préstamo</h4>
+                <p class="text-slate-500 text-[13px] mt-0.5">Cada préstamo lleva un hash criptográfico. Cualquier modificación no autorizada es detectable.</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white text-sm">Keychain / Keystore en dispositivo</h4>
+                <p class="text-slate-500 text-[13px] mt-0.5">Las sesiones JWT se almacenan en el enclave seguro del dispositivo (iOS Keychain, Android Keystore).</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white text-sm">Tests de penetración automatizados</h4>
+                <p class="text-slate-500 text-[13px] mt-0.5">Suite de pruebas que verifica RLS con usuarios reales en cada release. La seguridad no se asume — se demuestra.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tech stack badges -->
+          <div class="flex flex-wrap gap-3 pt-2">
+            <div class="bg-white/[.04] border border-white/[.08] rounded-lg px-3 py-1.5 text-[11px] font-bold text-[#3ECF8E]">Supabase</div>
+            <div class="bg-white/[.04] border border-white/[.08] rounded-lg px-3 py-1.5 text-[11px] font-bold text-[#54c5f8]">Flutter 3</div>
+            <div class="bg-white/[.04] border border-white/[.08] rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-300">SHA-256</div>
+            <div class="bg-white/[.04] border border-white/[.08] rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-300">JWT / OTP</div>
+            <div class="bg-white/[.04] border border-white/[.08] rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-300">Riverpod</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ PARA INVERSORES ═══════════════════ -->
+  <section class="py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center space-y-12">
+
+      <div class="space-y-3">
+        <span class="text-[11px] font-bold uppercase tracking-widest text-brand-500">Por qué Wayqui</span>
+        <h2 class="text-4xl font-bold text-slate-900">Una oportunidad real en el mercado peruano</h2>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-6 text-left">
+        <div class="space-y-2">
+          <p class="text-3xl font-black text-slate-900">33M+</p>
+          <p class="text-sm font-semibold text-slate-700">Peruanos</p>
+          <p class="text-[13px] text-slate-500">en un mercado donde los préstamos informales entre personas son práctica habitual y sin respaldo tecnológico.</p>
+        </div>
+        <div class="space-y-2">
+          <p class="text-3xl font-black text-slate-900">Yape & Plin</p>
+          <p class="text-sm font-semibold text-slate-700">Líderes de pagos digitales</p>
+          <p class="text-[13px] text-slate-500">Wayqui se integra con las apps que ya usa el 80 % de la población bancarizada del Perú.</p>
+        </div>
+        <div class="space-y-2">
+          <p class="text-3xl font-black text-slate-900">Clean Arch.</p>
+          <p class="text-sm font-semibold text-slate-700">Base técnica escalable</p>
+          <p class="text-[13px] text-slate-500">Arquitectura Flutter + Supabase lista para escalar a grupos de deuda, exportación PDF y analítica financiera.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CTA FINAL ═══════════════════ -->
+  <section class="cta-bg py-28">
+    <div class="max-w-2xl mx-auto px-5 sm:px-8 text-center space-y-8">
+      <h2 class="text-5xl sm:text-6xl font-black text-white leading-tight" style="font-family:'Nunito',sans-serif">
+        Sé de los<br>primeros en <span class="gradient-text">usarlo</span>.
+      </h2>
+      <p class="text-slate-400 text-lg">Wayqui está llegando a Google Play. ¿Tienes interés en colaborar, invertir o ser beta tester?</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button disabled aria-disabled="true"
+          class="flex items-center justify-center gap-2 bg-white/[.07] text-white/40 cursor-not-allowed px-7 py-4 rounded-xl font-semibold text-sm border border-white/[.08]">
+          Próximamente en Google Play
+        </button>
+        <a href="https://wa.me/51999999999" target="_blank" rel="noopener"
+           class="flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-7 py-4 rounded-xl font-semibold text-sm transition-colors duration-150">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Contactar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer class="bg-navy-950 border-t border-white/[.04] py-10">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-5">
+        <span class="text-xl font-black text-white tracking-widest" style="font-family:'Nunito',sans-serif">WAYQUI</span>
+        <nav class="flex items-center gap-6 text-[12px] text-slate-500" aria-label="Footer">
+          <a href="#caracteristicas" class="hover:text-slate-300 transition-colors">Características</a>
+          <a href="#seguridad"       class="hover:text-slate-300 transition-colors">Seguridad</a>
+          <a href="./privacidad.html"       class="hover:text-slate-300 transition-colors">Política de Privacidad</a>
+          <a href="https://wa.me/51999999999" target="_blank" rel="noopener" class="hover:text-slate-300 transition-colors">Contacto</a>
+        </nav>
+        <p class="text-[11px] text-slate-600">© 2026 Wayqui. Hecho con cuidado para el Perú.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

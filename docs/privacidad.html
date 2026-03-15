@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Política de Privacidad de Wayqui — Cómo recopilamos, usamos y protegemos tu información personal.">
+  <title>Política de Privacidad — Wayqui</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Nunito', 'sans-serif'] },
+          colors: {
+            brand: { 400:'#34d399', 500:'#10b981', 600:'#059669' },
+            navy:  { 950:'#05080f', 900:'#0a0f1e', 800:'#0f172a', 700:'#1e293b' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    html { scroll-behavior: smooth; }
+
+    .hero-mini {
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,.14) 0%, transparent 70%),
+                  linear-gradient(160deg, #05080f 0%, #0a0f1e 60%, #110a24 100%);
+    }
+
+    .prose-section h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .prose-section h3 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .prose-section p {
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: #475569;
+      margin-bottom: 0.875rem;
+    }
+    .prose-section ul {
+      margin: 0.5rem 0 1rem 1.25rem;
+      list-style: disc;
+    }
+    .prose-section ul li {
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: #475569;
+      margin-bottom: 0.25rem;
+    }
+    .prose-section a {
+      color: #10b981;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .prose-section a:hover { color: #059669; }
+
+    .highlight-box {
+      background: #f0fdf4;
+      border-left: 3px solid #10b981;
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.25rem 0;
+    }
+    .highlight-box p { margin: 0; color: #065f46; font-size: 0.9rem; }
+  </style>
+</head>
+
+<body class="bg-white text-slate-900">
+
+  <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+  <nav class="fixed inset-x-0 top-0 z-50 bg-navy-900/80 backdrop-blur-xl border-b border-white/[.06]">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+
+      <a href="./index.html" class="flex items-center gap-2.5">
+        <span class="text-2xl font-black tracking-widest text-white" style="font-family:'Nunito',sans-serif">WAYQUI</span>
+        <span class="hidden sm:block text-[10px] font-bold uppercase tracking-wider bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full">Beta</span>
+      </a>
+
+      <div class="flex items-center gap-5 sm:gap-7">
+        <a href="./index.html#caracteristicas" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors duration-150">Características</a>
+        <a href="./index.html#seguridad"       class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors duration-150">Seguridad</a>
+        <a href="./privacidad.html"            class="hidden sm:block text-sm text-white font-semibold transition-colors duration-150">Privacidad</a>
+        <a href="https://wa.me/51999999999" target="_blank" rel="noopener"
+           class="text-sm font-semibold bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white px-4 py-2 rounded-lg transition-colors duration-150">
+          Contacto
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════ HERO MINI ═══════════════════ -->
+  <section class="hero-mini pt-16">
+    <div class="max-w-3xl mx-auto px-5 sm:px-8 py-16 sm:py-20 text-center">
+      <p class="text-[11px] font-semibold tracking-[.18em] uppercase text-brand-400 mb-4">
+        Legal · Transparencia
+      </p>
+      <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight" style="font-family:'Nunito',sans-serif">
+        Política de Privacidad
+      </h1>
+      <p class="mt-4 text-slate-400 text-base leading-relaxed max-w-lg mx-auto">
+        En Wayqui tomamos en serio la privacidad de tus datos. Este documento explica qué información recopilamos, cómo la usamos y cómo la protegemos.
+      </p>
+      <p class="mt-6 text-xs text-slate-600">
+        Última actualización: <time datetime="2026-03-13">13 de marzo de 2026</time>
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CONTENT ═══════════════════ -->
+  <main class="max-w-3xl mx-auto px-5 sm:px-8 py-12 sm:py-16 prose-section">
+
+    <!-- Intro -->
+    <div class="highlight-box">
+      <p>
+        <strong>Resumen ejecutivo:</strong> Wayqui recopila únicamente los datos necesarios para prestarte el servicio.
+        No vendemos ni compartimos tu información personal con terceros con fines publicitarios o comerciales.
+      </p>
+    </div>
+
+    <!-- 1 -->
+    <h2>1. Quiénes somos</h2>
+    <p>
+      Wayqui es una aplicación móvil de gestión de préstamos personales desarrollada para el mercado peruano.
+      Permite a los usuarios registrar, cobrar y hacer seguimiento de préstamos entre personas, con integración
+      a los métodos de pago Yape y Plin.
+    </p>
+    <p>
+      Para consultas relacionadas con privacidad, puedes contactarnos en:
+      <a href="mailto:josehuanacomunoz@gmail.com">josehuanacomunoz@gmail.com</a>
+    </p>
+
+    <!-- 2 -->
+    <h2>2. Información que recopilamos</h2>
+
+    <h3>2.1 Información que tú nos proporcionas</h3>
+    <ul>
+      <li><strong>Datos de cuenta:</strong> nombre completo, dirección de correo electrónico, número de teléfono.</li>
+      <li><strong>Datos de préstamos:</strong> nombres de contactos, montos, descripciones, fechas de vencimiento.</li>
+      <li><strong>Comprobantes de pago:</strong> imágenes de operaciones Yape, Plin u otros métodos que subas voluntariamente.</li>
+      <li><strong>Notas y mensajes:</strong> texto libre que incluyas en transacciones o disputas.</li>
+    </ul>
+
+    <h3>2.2 Información recopilada automáticamente</h3>
+    <ul>
+      <li><strong>Datos de uso:</strong> fechas y horas de acceso, funciones utilizadas, errores de la aplicación.</li>
+      <li><strong>Información del dispositivo:</strong> tipo de dispositivo, versión del sistema operativo (solo para diagnóstico técnico).</li>
+    </ul>
+
+    <h3>2.3 Información que NO recopilamos</h3>
+    <ul>
+      <li>No accedemos a tus contactos sin tu permiso explícito.</li>
+      <li>No almacenamos credenciales bancarias ni tokens de pago de Yape/Plin.</li>
+      <li>No rastreamos tu ubicación geográfica.</li>
+      <li>No accedemos a tu galería de fotos más allá de la imagen que tú seleccionas activamente.</li>
+    </ul>
+
+    <!-- 3 -->
+    <h2>3. Cómo usamos tu información</h2>
+    <p>Utilizamos la información recopilada exclusivamente para los siguientes fines:</p>
+    <ul>
+      <li>Crear y gestionar tu cuenta en Wayqui.</li>
+      <li>Mostrar tu historial de préstamos y transacciones.</li>
+      <li>Enviar notificaciones dentro de la app (recordatorios de pago, confirmaciones).</li>
+      <li>Enviar recordatorios por correo electrónico cuando tú, como acreedor, lo solicites explícitamente.</li>
+      <li>Calcular y mostrar resúmenes financieros (total prestado, total adeudado).</li>
+      <li>Garantizar la integridad de los datos mediante verificaciones SHA-256.</li>
+      <li>Diagnosticar y corregir errores técnicos de la aplicación.</li>
+      <li>Cumplir con obligaciones legales aplicables.</li>
+    </ul>
+
+    <!-- 4 -->
+    <h2>4. Base legal para el tratamiento</h2>
+    <p>Tratamos tus datos personales bajo las siguientes bases legales:</p>
+    <ul>
+      <li><strong>Ejecución del contrato:</strong> necesario para prestarte el servicio de gestión de préstamos.</li>
+      <li><strong>Consentimiento:</strong> para el envío de correos electrónicos de recordatorio a terceros.</li>
+      <li><strong>Interés legítimo:</strong> para mejorar la seguridad y el funcionamiento de la aplicación.</li>
+    </ul>
+
+    <!-- 5 -->
+    <h2>5. Cómo compartimos tu información</h2>
+
+    <div class="highlight-box">
+      <p>
+        <strong>Compromiso clave:</strong> Wayqui <em>no vende, no alquila ni comparte</em> tu información personal
+        con terceros para fines publicitarios, de marketing o comerciales.
+      </p>
+    </div>
+
+    <p>Solo compartimos datos en los siguientes casos limitados:</p>
+
+    <h3>5.1 Proveedores de infraestructura</h3>
+    <p>
+      <strong>Supabase Inc.</strong> (supabase.com) — Proveedor de base de datos en la nube, autenticación y
+      almacenamiento de archivos. Supabase actúa como encargado del tratamiento bajo nuestras instrucciones
+      y mantiene certificaciones de seguridad (SOC 2 Type II). Los datos se almacenan en servidores de
+      Amazon Web Services.
+    </p>
+    <p>
+      <strong>Resend Inc.</strong> (resend.com) — Servicio de envío de correos electrónicos transaccionales.
+      Solo recibe la dirección de email del destinatario y el contenido del recordatorio cuando tú activas
+      esta función como acreedor.
+    </p>
+
+    <h3>5.2 Otros usuarios de Wayqui</h3>
+    <p>
+      Tu nombre y algunos datos de préstamos son visibles para los usuarios con quienes tienes préstamos
+      activos (acreedores o deudores). Esta visibilidad es inherente al funcionamiento del servicio.
+    </p>
+
+    <h3>5.3 Requerimientos legales</h3>
+    <p>
+      Podemos divulgar información cuando sea requerido por ley, orden judicial o autoridad competente peruana.
+    </p>
+
+    <!-- 6 -->
+    <h2>6. Seguridad de los datos</h2>
+    <p>Implementamos las siguientes medidas técnicas para proteger tu información:</p>
+    <ul>
+      <li><strong>Cifrado en tránsito:</strong> todas las comunicaciones usan TLS 1.3.</li>
+      <li><strong>Cifrado en reposo:</strong> la base de datos de Supabase cifra los datos en reposo mediante AES-256.</li>
+      <li><strong>Autenticación:</strong> acceso protegido por JWT firmados con expiración de sesión.</li>
+      <li><strong>Row Level Security (RLS):</strong> cada usuario solo puede acceder a sus propios datos a nivel de base de datos.</li>
+      <li><strong>Integridad SHA-256:</strong> cada préstamo incluye un checksum criptográfico para detectar manipulaciones.</li>
+      <li><strong>Almacenamiento privado:</strong> los comprobantes de pago se guardan en un bucket privado con URLs firmadas de acceso limitado.</li>
+    </ul>
+
+    <!-- 7 -->
+    <h2>7. Retención de datos</h2>
+    <p>
+      Conservamos tus datos mientras tu cuenta esté activa. Si eliminas tu cuenta,
+      procederemos a eliminar tus datos personales en un plazo de 30 días calendario,
+      excepto aquellos que debamos conservar por obligaciones legales o para resolver disputas pendientes.
+    </p>
+    <p>
+      Los registros de transacciones pueden conservarse de forma anonimizada para análisis estadísticos.
+    </p>
+
+    <!-- 8 -->
+    <h2>8. Tus derechos</h2>
+    <p>De acuerdo con la Ley N.° 29733 (Ley de Protección de Datos Personales del Perú) y sus modificaciones, tienes derecho a:</p>
+    <ul>
+      <li><strong>Acceso:</strong> solicitar una copia de los datos personales que tenemos sobre ti.</li>
+      <li><strong>Rectificación:</strong> corregir datos inexactos o incompletos.</li>
+      <li><strong>Cancelación / Eliminación:</strong> solicitar la eliminación de tu cuenta y datos personales.</li>
+      <li><strong>Oposición:</strong> oponerte al tratamiento de tus datos en determinadas circunstancias.</li>
+      <li><strong>Portabilidad:</strong> recibir tus datos en un formato estructurado y legible.</li>
+    </ul>
+
+    <div class="highlight-box">
+      <p>
+        Para ejercer cualquiera de estos derechos, incluida la <strong>eliminación de tu cuenta</strong>,
+        escríbenos a <a href="mailto:josehuanacomunoz@gmail.com">josehuanacomunoz@gmail.com</a> con el
+        asunto <em>"Solicitud de privacidad"</em>. Responderemos en un plazo máximo de 15 días hábiles.
+      </p>
+    </div>
+
+    <!-- 9 -->
+    <h2>9. Datos de menores</h2>
+    <p>
+      Wayqui no está dirigida a menores de 18 años. No recopilamos conscientemente información personal
+      de menores. Si detectamos que un menor ha creado una cuenta, la eliminaremos de inmediato.
+      Si tienes conocimiento de que un menor nos ha proporcionado datos personales, contáctanos.
+    </p>
+
+    <!-- 10 -->
+    <h2>10. Transferencias internacionales</h2>
+    <p>
+      Tus datos pueden ser procesados en servidores ubicados fuera del Perú (principalmente en Estados Unidos,
+      donde opera la infraestructura de Supabase y AWS). Estas transferencias se realizan con las garantías
+      adecuadas de seguridad y bajo contratos de tratamiento de datos conformes con la normativa aplicable.
+    </p>
+
+    <!-- 11 -->
+    <h2>11. Cookies y tecnologías de seguimiento</h2>
+    <p>
+      Wayqui es una aplicación móvil y no utiliza cookies de navegador. No empleamos píxeles de seguimiento,
+      SDKs de publicidad ni herramientas de analítica de terceros en la versión actual.
+    </p>
+
+    <!-- 12 -->
+    <h2>12. Cambios a esta política</h2>
+    <p>
+      Podemos actualizar esta Política de Privacidad periódicamente. Te notificaremos de cambios significativos
+      mediante una notificación en la aplicación o por correo electrónico. La fecha de "última actualización"
+      al inicio del documento siempre reflejará la versión vigente.
+    </p>
+    <p>
+      El uso continuado de Wayqui tras la publicación de cambios constituye tu aceptación de la política revisada.
+    </p>
+
+    <!-- 13 -->
+    <h2>13. Contacto</h2>
+    <p>
+      Para cualquier consulta, solicitud o reclamación relacionada con el tratamiento de tus datos personales:
+    </p>
+    <ul>
+      <li><strong>Correo electrónico:</strong> <a href="mailto:josehuanacomunoz@gmail.com">josehuanacomunoz@gmail.com</a></li>
+      <li><strong>WhatsApp:</strong> <a href="https://wa.me/51999999999" target="_blank" rel="noopener">+51 999 999 999</a></li>
+    </ul>
+    <p>
+      Nos comprometemos a responder en un plazo máximo de 15 días hábiles.
+    </p>
+
+    <!-- Divider -->
+    <hr class="my-10 border-slate-100">
+    <p class="text-xs text-slate-400 text-center">
+      Esta política es efectiva a partir del <time datetime="2026-03-13">13 de marzo de 2026</time>.
+      Wayqui opera bajo la legislación peruana (Ley N.° 29733).
+    </p>
+
+  </main>
+
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer class="bg-navy-950 border-t border-white/[.04] py-10">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-5">
+        <span class="text-xl font-black text-white tracking-widest" style="font-family:'Nunito',sans-serif">WAYQUI</span>
+        <nav class="flex flex-wrap justify-center gap-5 text-[13px] text-slate-500">
+          <a href="./index.html"              class="hover:text-slate-300 transition-colors">Inicio</a>
+          <a href="./index.html#caracteristicas" class="hover:text-slate-300 transition-colors">Características</a>
+          <a href="./index.html#seguridad"    class="hover:text-slate-300 transition-colors">Seguridad</a>
+          <a href="./privacidad.html"         class="text-brand-400">Política de Privacidad</a>
+          <a href="https://wa.me/51999999999" target="_blank" rel="noopener" class="hover:text-slate-300 transition-colors">Contacto</a>
+        </nav>
+        <p class="text-[11px] text-slate-600">© 2026 Wayqui. Hecho con cuidado para el Perú.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
